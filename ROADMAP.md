@@ -15,7 +15,8 @@ Cible : SaaS freemium B2C + B2B (coachs / nutritionnistes), stack full-stack, ho
 | Styles | Tailwind CSS + shadcn/ui | Remplacement du CSS inline |
 | Auth | Supabase Auth | Magic link + Google OAuth, gratuit |
 | Base de données | Supabase (PostgreSQL) | Schéma relationnel, RLS par user |
-| IA | Claude API — `claude-sonnet-4-6` | Génération recettes, plans, listes |
+| IA (principal) | Gemini 2.5 Flash | $0,30/$2,50 par M tokens — 90% des appels |
+| IA (avancé) | Gemini 2.5 Pro | Analyse photo, personnalisation poussée |
 | Rate limiting | Upstash Redis | Compteur d'appels IA par user/mois |
 | Paiements | Stripe | Checkout, Customer Portal, Webhooks |
 | Email | Resend | Rappels préparation, récap hebdo |
@@ -108,7 +109,13 @@ Free : 3 | Premium : 30 | Pro : ∞
 Si dépassé → 429 + message d'upgrade
 ```
 
-**Streaming Claude API** pour les recettes (feedback visuel immédiat).
+**Streaming Gemini API** pour les recettes (feedback visuel immédiat).
+
+**Stratégie tiered routing :**
+```
+Appels simples (génération planning, variantes recettes) → Gemini 2.5 Flash
+Appels avancés (analyse photo du bol, personnalisation poussée) → Gemini 2.5 Pro
+```
 
 **Prompt système de base :**
 ```
@@ -151,7 +158,7 @@ Retourne toujours du JSON valide avec la structure demandée.
 /lib
   /supabase.ts
   /stripe.ts
-  /claude.ts                       ← wrapper Claude API + streaming
+  /gemini.ts                       ← wrapper Gemini API + streaming
   /rate-limit.ts                   ← vérification quota Upstash
 /components
   /MealPlanGrid.tsx
@@ -163,28 +170,54 @@ Retourne toujours du JSON valide avec la structure demandée.
 
 ---
 
-## Intégration Claude API (exemple)
+## Intégration Gemini API (exemple)
 
 ```typescript
-// lib/claude.ts
-import Anthropic from '@anthropic-ai/sdk'
+// lib/gemini.ts
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const client = new Anthropic()
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+
+// Appels simples → Flash
+const flashModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+// Appels avancés (analyse photo) → Pro
+const proModel   = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' })
 
 export async function generateMealPlan(userProfile: UserProfile) {
-  const stream = client.messages.stream({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 2048,
-    system: `Tu es un expert en nutrition du petit-déjeuner...`,
-    messages: [{
+  const result = await flashModel.generateContentStream({
+    contents: [{
       role: 'user',
-      content: `Génère un plan de 7 petits-déjeuners pour ce profil : ${JSON.stringify(userProfile)}.
-                Retourne un JSON valide : [{day, meal_name, prep_time, badge_type, recipe_key}]`
+      parts: [{ text:
+        `Tu es un expert en nutrition du petit-déjeuner, tu réponds en français.
+         Génère un plan de 7 petits-déjeuners pour ce profil : ${JSON.stringify(userProfile)}.
+         Retourne un JSON valide : [{day, meal_name, prep_time, badge_type, recipe_key}]`
+      }]
     }]
   })
-  return stream  // streamer vers le client avec ReadableStream
+  return result.stream  // streamer vers le client avec ReadableStream
 }
 ```
+
+## Coût IA estimé (1 000 utilisateurs actifs/mois, 5 appels chacun)
+
+| Stratégie | Coût/mois |
+|---|---|
+| Gemini 2.5 Flash uniquement | ~2–5 € |
+| Gemini Flash + Pro (tiered) | ~5–15 € |
+| Claude Sonnet 4.6 uniquement | ~30–50 € |
+
+**Économie avec tiered routing : 80–90% vs un modèle premium.**
+
+---
+
+## Positionnement vs concurrence
+
+Les apps existantes (Jow, Petit Citron, PlannyMeal) couvrent tous les repas de la journée.
+Aucune ne fait les 3 choses suivantes ensemble :
+
+1. **Focus 100% petit-déjeuner** — expert, pas généraliste
+2. **Logique "veille" vs "2 min le matin"** — badges Préparer la veille / Express / Week-end
+3. **Conseil nutritionnel embarqué** — index glycémique, protéines, satiété expliqués
 
 ---
 
