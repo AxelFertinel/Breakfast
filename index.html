@@ -50,23 +50,6 @@
     .step{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#444;line-height:1.5}
     .step-num{min-width:20px;height:20px;border-radius:50%;background:var(--green-light);color:var(--green);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;margin-top:1px}
     .tip-box{background:var(--amber-light);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--amber);margin-top:12px;line-height:1.5}
-
-    .section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#aaa;margin:1.2rem 0 8px}
-    .check-list{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem}
-    .check-item{display:flex;align-items:center;gap:10px;background:#fff;border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s}
-    .check-item:hover{border-color:#bbb}
-    .check-item.checked{background:#F5F5F0;opacity:.65}
-    .check-item.checked .check-label{text-decoration:line-through;color:#aaa}
-    .check-box{width:18px;height:18px;border-radius:5px;border:1.5px solid #ccc;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-    .check-item.checked .check-box{background:var(--green);border-color:var(--green)}
-    .check-tick{display:none;font-size:11px;color:#fff}
-    .check-item.checked .check-tick{display:block}
-    .check-label{font-size:14px;font-weight:500;flex:1}
-    .check-qty{font-size:12px;color:var(--green);font-weight:500;background:var(--green-light);padding:2px 8px;border-radius:20px}
-    .check-all{font-size:12px;color:#888;text-align:right;margin-bottom:8px;cursor:pointer;text-decoration:underline}
-    .progress-bar{height:4px;background:#E5E5DF;border-radius:4px;margin-bottom:1.5rem;overflow:hidden}
-    .progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .3s}
-    .progress-text{font-size:12px;color:#888;margin-bottom:8px;text-align:right}
   </style>
 </head>
 <body>
@@ -74,31 +57,19 @@
 <div class="tabs">
   <button class="tab active" onclick="showTab('prog', event)">📅 Programme</button>
   <button class="tab" onclick="showTab('recettes', event)">🥣 Recettes</button>
-  <button class="tab" onclick="showTab('courses', event)">🛒 Courses</button>
 </div>
 
 <div id="prog" class="panel active">
 
-  <div class="week-label">Semaine 1</div>
+  <div class="week-label">La semaine</div>
   <div class="days">
     <div class="day-row"><span class="day-name">Lundi</span><div class="day-card"><div><div class="meal-name">Overnight oats fruits rouges</div><div class="meal-sub">Préparer dimanche soir</div></div><span class="badge-v badge-prep">Veille</span></div></div>
-    <div class="day-row"><span class="day-name">Mardi</span><div class="day-card"><div><div class="meal-name">Yaourt grec · banane · amandes</div><div class="meal-sub">0 préparation</div></div><span class="badge-v badge-quick">2 min</span></div></div>
-    <div class="day-row"><span class="day-name">Mercredi</span><div class="day-card"><div><div class="meal-name">Overnight oats pomme-cannelle</div><div class="meal-sub">Préparer mardi soir</div></div><span class="badge-v badge-prep">Veille</span></div></div>
-    <div class="day-row"><span class="day-name">Jeudi</span><div class="day-card"><div><div class="meal-name">Toast fromage · œuf dur · fruit</div><div class="meal-sub">Œuf dur cuit la veille</div></div><span class="badge-v badge-quick">3 min</span></div></div>
-    <div class="day-row"><span class="day-name">Vendredi</span><div class="day-card"><div><div class="meal-name">Fromage blanc · muesli · fruits</div><div class="meal-sub">Préparer jeudi soir</div></div><span class="badge-v badge-prep">Veille</span></div></div>
-    <div class="day-row"><span class="day-name">Samedi</span><div class="day-card"><div><div class="meal-name">Smoothie bowl protéiné</div><div class="meal-sub">10 min · week-end</div></div><span class="badge-v badge-we">Week-end</span></div></div>
-    <div class="day-row"><span class="day-name">Dimanche</span><div class="day-card"><div><div class="meal-name">Brunch omelette · fromage blanc · fruits</div><div class="meal-sub">20 min · week-end</div></div><span class="badge-v badge-we">Week-end</span></div></div>
-  </div>
-
-  <div class="week-label">Semaine 2</div>
-  <div class="days">
-    <div class="day-row"><span class="day-name">Lundi</span><div class="day-card"><div><div class="meal-name">Overnight oats banane-miel</div><div class="meal-sub">Préparer dimanche soir</div></div><span class="badge-v badge-prep">Veille</span></div></div>
-    <div class="day-row"><span class="day-name">Mardi</span><div class="day-card"><div><div class="meal-name">Yaourt grec · kiwi · noix</div><div class="meal-sub">0 préparation</div></div><span class="badge-v badge-quick">2 min</span></div></div>
-    <div class="day-row"><span class="day-name">Mercredi</span><div class="day-card"><div><div class="meal-name">Overnight oats fruits rouges-noix</div><div class="meal-sub">Préparer mardi soir</div></div><span class="badge-v badge-prep">Veille</span></div></div>
-    <div class="day-row"><span class="day-name">Jeudi</span><div class="day-card"><div><div class="meal-name">Toast fromage · œuf dur · orange</div><div class="meal-sub">Œuf dur cuit la veille</div></div><span class="badge-v badge-quick">3 min</span></div></div>
-    <div class="day-row"><span class="day-name">Vendredi</span><div class="day-card"><div><div class="meal-name">Fromage blanc · muesli · banane</div><div class="meal-sub">Préparer jeudi soir</div></div><span class="badge-v badge-prep">Veille</span></div></div>
-    <div class="day-row"><span class="day-name">Samedi</span><div class="day-card"><div><div class="meal-name">Smoothie bowl pomme-cannelle</div><div class="meal-sub">10 min · week-end</div></div><span class="badge-v badge-we">Week-end</span></div></div>
-    <div class="day-row"><span class="day-name">Dimanche</span><div class="day-card"><div><div class="meal-name">Brunch œufs brouillés · fromage · pain de seigle</div><div class="meal-sub">15 min · week-end</div></div><span class="badge-v badge-we">Week-end</span></div></div>
+    <div class="day-row"><span class="day-name">Mardi</span><div class="day-card"><div><div class="meal-name">Yaourt grec · banane · noix</div><div class="meal-sub">0 préparation</div></div><span class="badge-v badge-quick">2 min</span></div></div>
+    <div class="day-row"><span class="day-name">Mercredi</span><div class="day-card"><div><div class="meal-name">Overnight oats pomme-miel</div><div class="meal-sub">Préparer mardi soir</div></div><span class="badge-v badge-prep">Veille</span></div></div>
+    <div class="day-row"><span class="day-name">Jeudi</span><div class="day-card"><div><div class="meal-name">Toast comté · œuf dur · kiwi</div><div class="meal-sub">Œuf dur cuit la veille</div></div><span class="badge-v badge-quick">3 min</span></div></div>
+    <div class="day-row"><span class="day-name">Vendredi</span><div class="day-card"><div><div class="meal-name">Muesli · yaourt grec · fruits rouges</div><div class="meal-sub">0 préparation</div></div><span class="badge-v badge-quick">2 min</span></div></div>
+    <div class="day-row"><span class="day-name">Samedi</span><div class="day-card"><div><div class="meal-name">Smoothie bowl banane-fruits rouges</div><div class="meal-sub">10 min · week-end</div></div><span class="badge-v badge-we">Week-end</span></div></div>
+    <div class="day-row"><span class="day-name">Dimanche</span><div class="day-card"><div><div class="meal-name">Brunch omelette champignons-chèvre</div><div class="meal-sub">20 min · week-end</div></div><span class="badge-v badge-we">Week-end</span></div></div>
   </div>
 
 </div>
@@ -108,231 +79,178 @@
 
     <div class="recipe-card">
       <div class="recipe-header" onclick="toggleRecipe(this)">
-        <div><div class="recipe-title">Overnight oats (base)</div><div class="recipe-meta">Semaine 1 Lundi & Mercredi · Semaine 2 Lundi & Mercredi</div></div>
+        <div><div class="recipe-title">Overnight oats fruits rouges</div><div class="recipe-meta">Lundi</div></div>
         <span class="recipe-arrow">▼</span>
       </div>
       <div class="recipe-body">
         <div class="ingr-title">Ingrédients — 1 portion</div>
         <table class="ingr-table">
           <tr><td>Flocons d'avoine</td><td>50 g</td></tr>
-          <tr><td>Lait (ou boisson végétale)</td><td>150 ml</td></tr>
-          <tr><td>Yaourt nature (optionnel, + crémeux)</td><td>50 g</td></tr>
-          <tr><td>Fruits rouges <em>ou</em> pomme râpée</td><td>100 g</td></tr>
-          <tr><td>Noix concassées <em>ou</em> amandes</td><td>20 g</td></tr>
-          <tr><td>Miel (optionnel)</td><td>1 c. à café</td></tr>
+          <tr><td>Lait</td><td>150 ml</td></tr>
+          <tr><td>Fruits rouges congelés</td><td>80 g</td></tr>
+          <tr><td>Mélange de noix</td><td>20 g</td></tr>
+          <tr><td>Miel</td><td>1 c. à café</td></tr>
         </table>
         <div class="ingr-title">Préparation (la veille, 3 min)</div>
         <div class="step-list">
-          <div class="step"><span class="step-num">1</span>Dans un pot ou un bol avec couvercle, verser les flocons d'avoine et le lait.</div>
-          <div class="step"><span class="step-num">2</span>Ajouter le yaourt si utilisé, mélanger rapidement.</div>
+          <div class="step"><span class="step-num">1</span>Dans un pot ou bol avec couvercle, verser les flocons d'avoine et le lait.</div>
+          <div class="step"><span class="step-num">2</span>Ajouter les fruits rouges encore congelés par-dessus. Ils décongèleront la nuit au frigo.</div>
           <div class="step"><span class="step-num">3</span>Couvrir et placer au frigo pour toute la nuit.</div>
-          <div class="step"><span class="step-num">4</span>Le matin : ajouter les fruits et les noix par-dessus. Manger froid.</div>
+          <div class="step"><span class="step-num">4</span>Le matin : ajouter les noix et un filet de miel. Manger froid.</div>
         </div>
-        <div class="tip-box">Variante S2 Lundi : remplacer les fruits rouges par 1 banane écrasée + 1 c. à café de miel. Variante S2 Mercredi : fruits rouges + noix.</div>
+        <div class="tip-box">Les fruits rouges congelés ajoutés directement colorent et parfument les flocons toute la nuit. Pas besoin de décongeler à l'avance.</div>
       </div>
     </div>
 
     <div class="recipe-card">
       <div class="recipe-header" onclick="toggleRecipe(this)">
-        <div><div class="recipe-title">Yaourt grec · fruits · oléagineux</div><div class="recipe-meta">Mardi S1 & S2</div></div>
+        <div><div class="recipe-title">Yaourt grec · banane · noix</div><div class="recipe-meta">Mardi</div></div>
         <span class="recipe-arrow">▼</span>
       </div>
       <div class="recipe-body">
         <div class="ingr-title">Ingrédients — 1 portion</div>
         <table class="ingr-table">
           <tr><td>Yaourt grec nature</td><td>150 g</td></tr>
-          <tr><td>Banane <em>ou</em> 2 kiwis</td><td>1 pièce</td></tr>
-          <tr><td>Amandes <em>ou</em> noix</td><td>30 g</td></tr>
-          <tr><td>Miel (optionnel)</td><td>1 c. à café</td></tr>
+          <tr><td>Banane</td><td>1 pièce</td></tr>
+          <tr><td>Mélange de noix</td><td>30 g</td></tr>
+          <tr><td>Miel</td><td>1 c. à café</td></tr>
         </table>
         <div class="ingr-title">Préparation (2 min)</div>
         <div class="step-list">
-          <div class="step"><span class="step-num">1</span>Verser le yaourt dans un bol.</div>
-          <div class="step"><span class="step-num">2</span>Couper le fruit en rondelles par-dessus.</div>
-          <div class="step"><span class="step-num">3</span>Ajouter les oléagineux. Filet de miel si souhaité.</div>
+          <div class="step"><span class="step-num">1</span>Verser le yaourt grec dans un bol.</div>
+          <div class="step"><span class="step-num">2</span>Couper la banane en rondelles par-dessus.</div>
+          <div class="step"><span class="step-num">3</span>Ajouter le mélange de noix. Filet de miel.</div>
         </div>
-        <div class="tip-box">S1 Mardi : banane + amandes. S2 Mardi : kiwis + noix. Préparer les pots d'oléagineux en avance (portions de 30g) pour gagner encore plus de temps.</div>
+        <div class="tip-box">Préparer les portions de noix (30 g) en avance dans de petits sachets pour gagner encore plus de temps le matin.</div>
       </div>
     </div>
 
     <div class="recipe-card">
       <div class="recipe-header" onclick="toggleRecipe(this)">
-        <div><div class="recipe-title">Toast fromage · œuf dur · fruit</div><div class="recipe-meta">Jeudi S1 & S2</div></div>
+        <div><div class="recipe-title">Overnight oats pomme-miel</div><div class="recipe-meta">Mercredi</div></div>
         <span class="recipe-arrow">▼</span>
       </div>
       <div class="recipe-body">
         <div class="ingr-title">Ingrédients — 1 portion</div>
         <table class="ingr-table">
-          <tr><td>Pain complet (tranches)</td><td>2 tranches (~80 g)</td></tr>
-          <tr><td>Emmental ou comté</td><td>30 g</td></tr>
+          <tr><td>Flocons d'avoine</td><td>50 g</td></tr>
+          <tr><td>Lait</td><td>150 ml</td></tr>
+          <tr><td>Pomme</td><td>½ pièce</td></tr>
+          <tr><td>Mélange de noix</td><td>20 g</td></tr>
+          <tr><td>Miel</td><td>1 c. à café</td></tr>
+        </table>
+        <div class="ingr-title">Préparation (la veille, 3 min)</div>
+        <div class="step-list">
+          <div class="step"><span class="step-num">1</span>Dans un pot, verser les flocons et le lait. Mélanger.</div>
+          <div class="step"><span class="step-num">2</span>Râper la demi-pomme directement dans le pot. Ajouter le miel. Mélanger.</div>
+          <div class="step"><span class="step-num">3</span>Couvrir et placer au frigo pour toute la nuit.</div>
+          <div class="step"><span class="step-num">4</span>Le matin : ajouter les noix par-dessus. Manger froid.</div>
+        </div>
+        <div class="tip-box">La pomme râpée infuse les flocons et les sucre naturellement. Variante : ajouter une pincée de cannelle pour un goût chaud et réconfortant.</div>
+      </div>
+    </div>
+
+    <div class="recipe-card">
+      <div class="recipe-header" onclick="toggleRecipe(this)">
+        <div><div class="recipe-title">Toast comté · œuf dur · kiwi</div><div class="recipe-meta">Jeudi</div></div>
+        <span class="recipe-arrow">▼</span>
+      </div>
+      <div class="recipe-body">
+        <div class="ingr-title">Ingrédients — 1 portion</div>
+        <table class="ingr-table">
+          <tr><td>Pain complet (tranches)</td><td>2 tranches</td></tr>
+          <tr><td>Comté (ou emmental)</td><td>30 g</td></tr>
           <tr><td>Œuf dur</td><td>1 pièce</td></tr>
-          <tr><td>Fruit (poire, pomme, orange…)</td><td>1 pièce</td></tr>
+          <tr><td>Kiwi</td><td>1 pièce</td></tr>
+          <tr><td>Beurre</td><td>5 g</td></tr>
         </table>
         <div class="ingr-title">Préparation</div>
         <div class="step-list">
           <div class="step"><span class="step-num">1</span>La veille : faire cuire l'œuf dur 10 min dans l'eau bouillante. Laisser refroidir, conserver au frigo avec la coquille.</div>
           <div class="step"><span class="step-num">2</span>Le matin : passer le pain au grille-pain.</div>
-          <div class="step"><span class="step-num">3</span>Poser le fromage sur les toasts chauds. Écaler et couper l'œuf. Manger avec le fruit.</div>
+          <div class="step"><span class="step-num">3</span>Beurrer légèrement les toasts. Poser le comté. Écaler et trancher l'œuf. Éplucher et couper le kiwi.</div>
         </div>
-        <div class="tip-box">Cuire 2-3 œufs en même temps pour avoir de l'avance sur la semaine. Conservation : 1 semaine au frigo avec la coquille.</div>
+        <div class="tip-box">Cuire 2–3 œufs en même temps pour avoir de l'avance. Conservation : 1 semaine au frigo avec la coquille.</div>
       </div>
     </div>
 
     <div class="recipe-card">
       <div class="recipe-header" onclick="toggleRecipe(this)">
-        <div><div class="recipe-title">Fromage blanc · muesli · fruits</div><div class="recipe-meta">Vendredi S1 & S2</div></div>
+        <div><div class="recipe-title">Muesli · yaourt grec · fruits rouges</div><div class="recipe-meta">Vendredi</div></div>
         <span class="recipe-arrow">▼</span>
       </div>
       <div class="recipe-body">
         <div class="ingr-title">Ingrédients — 1 portion</div>
         <table class="ingr-table">
-          <tr><td>Fromage blanc (0% ou 3.2%)</td><td>150 g</td></tr>
-          <tr><td>Muesli nature (sans sucre ajouté)</td><td>40 g</td></tr>
-          <tr><td>Fruits rouges <em>ou</em> banane (S2)</td><td>80–100 g</td></tr>
-          <tr><td>Noix</td><td>20 g</td></tr>
+          <tr><td>Muesli nature</td><td>50 g</td></tr>
+          <tr><td>Yaourt grec nature</td><td>150 g</td></tr>
+          <tr><td>Fruits rouges congelés (décongelés)</td><td>80 g</td></tr>
+          <tr><td>Miel</td><td>1 c. à café</td></tr>
         </table>
-        <div class="ingr-title">Préparation (la veille, 3 min)</div>
+        <div class="ingr-title">Préparation (2 min)</div>
         <div class="step-list">
-          <div class="step"><span class="step-num">1</span>Dans un pot, verser le fromage blanc.</div>
-          <div class="step"><span class="step-num">2</span>Ajouter les fruits et les noix.</div>
-          <div class="step"><span class="step-num">3</span>Conserver le muesli à part (pour ne pas qu'il ramollisse). Ajouter le matin.</div>
+          <div class="step"><span class="step-num">1</span>Sortir les fruits rouges du congélateur la veille au soir pour qu'ils décongèlent au frigo.</div>
+          <div class="step"><span class="step-num">2</span>Le matin : verser le yaourt dans un bol.</div>
+          <div class="step"><span class="step-num">3</span>Ajouter les fruits rouges et leur jus. Verser le muesli par-dessus. Filet de miel.</div>
         </div>
-        <div class="tip-box">Le muesli mis dans le fromage blanc la veille devient mou. Pour garder le croquant, gardez-le dans un petit sachet séparé et ajoutez-le au dernier moment.</div>
+        <div class="tip-box">Contrairement aux overnight oats, le muesli se verse au dernier moment pour garder son croquant.</div>
       </div>
     </div>
 
     <div class="recipe-card">
       <div class="recipe-header" onclick="toggleRecipe(this)">
-        <div><div class="recipe-title">Smoothie bowl protéiné</div><div class="recipe-meta">Samedi S1 & S2</div></div>
+        <div><div class="recipe-title">Smoothie bowl banane-fruits rouges</div><div class="recipe-meta">Samedi</div></div>
         <span class="recipe-arrow">▼</span>
       </div>
       <div class="recipe-body">
         <div class="ingr-title">Ingrédients — 1 portion</div>
         <table class="ingr-table">
-          <tr><td>Banane congelée</td><td>1 pièce (~120 g)</td></tr>
-          <tr><td>Fruits rouges (frais ou surgelés)</td><td>100 g</td></tr>
-          <tr><td>Yaourt grec</td><td>150 g</td></tr>
-          <tr><td>Flocons d'avoine (garniture)</td><td>40 g</td></tr>
-          <tr><td>Amandes effilées</td><td>15 g</td></tr>
+          <tr><td>Banane (congelée de préférence)</td><td>1 pièce (~120 g)</td></tr>
+          <tr><td>Fruits rouges congelés</td><td>100 g</td></tr>
+          <tr><td>Yaourt grec</td><td>100 g</td></tr>
+          <tr><td>Lait</td><td>2–3 c. à soupe</td></tr>
+          <tr><td>Flocons d'avoine (garniture)</td><td>30 g</td></tr>
+          <tr><td>Mélange de noix (garniture)</td><td>20 g</td></tr>
           <tr><td>Miel</td><td>1 c. à café</td></tr>
         </table>
         <div class="ingr-title">Préparation (10 min)</div>
         <div class="step-list">
-          <div class="step"><span class="step-num">1</span>Mixer la banane congelée + fruits rouges + yaourt grec jusqu'à obtenir une texture épaisse et crémeuse.</div>
+          <div class="step"><span class="step-num">1</span>Mixer la banane + fruits rouges congelés + yaourt grec + lait jusqu'à obtenir une texture épaisse et crémeuse. Ajouter le lait à la cuillère pour doser l'épaisseur.</div>
           <div class="step"><span class="step-num">2</span>Verser dans un bol large.</div>
-          <div class="step"><span class="step-num">3</span>Disposer les flocons d'avoine, les amandes effilées par-dessus. Filet de miel.</div>
+          <div class="step"><span class="step-num">3</span>Disposer les flocons d'avoine et le mélange de noix par-dessus. Filet de miel.</div>
         </div>
-        <div class="tip-box">Astuce : prépeler et congeler les bananes trop mûres. S2 : version pomme-cannelle → remplacer les fruits rouges par 1 pomme + ½ c. à café de cannelle.</div>
+        <div class="tip-box">Astuce : peler et congeler les bananes trop mûres. La texture sera plus épaisse et plus crémeuse qu'avec une banane fraîche.</div>
       </div>
     </div>
 
     <div class="recipe-card">
       <div class="recipe-header" onclick="toggleRecipe(this)">
-        <div><div class="recipe-title">Brunch omelette (S1 Dimanche)</div><div class="recipe-meta">Dimanche Semaine 1</div></div>
+        <div><div class="recipe-title">Brunch omelette champignons-chèvre</div><div class="recipe-meta">Dimanche</div></div>
         <span class="recipe-arrow">▼</span>
       </div>
       <div class="recipe-body">
         <div class="ingr-title">Ingrédients — 1 portion</div>
         <table class="ingr-table">
-          <tr><td>Œufs</td><td>2 pièces</td></tr>
-          <tr><td>Légumes (épinards, poivron, oignon)</td><td>80 g</td></tr>
-          <tr><td>Fromage blanc</td><td>150 g</td></tr>
-          <tr><td>Fruits de saison</td><td>1–2 pièces</td></tr>
-          <tr><td>Pain de seigle</td><td>2 tranches (~60 g)</td></tr>
-          <tr><td>Huile d'olive</td><td>1 c. à soupe</td></tr>
+          <tr><td>Œufs</td><td>3 pièces</td></tr>
+          <tr><td>Champignons</td><td>80 g</td></tr>
+          <tr><td>Oignon</td><td>½ pièce</td></tr>
+          <tr><td>Poivron</td><td>½ pièce</td></tr>
+          <tr><td>Fromage de chèvre</td><td>30 g</td></tr>
+          <tr><td>Huile</td><td>1 c. à soupe</td></tr>
+          <tr><td>Pain complet</td><td>2 tranches</td></tr>
         </table>
         <div class="ingr-title">Préparation (20 min)</div>
         <div class="step-list">
-          <div class="step"><span class="step-num">1</span>Faire revenir les légumes coupés en dés dans l'huile d'olive, 5 min à feu moyen.</div>
-          <div class="step"><span class="step-num">2</span>Battre les œufs, saler, poivrer. Verser sur les légumes. Cuire 3–4 min.</div>
-          <div class="step"><span class="step-num">3</span>Servir avec le fromage blanc, les fruits et le pain de seigle toasté.</div>
+          <div class="step"><span class="step-num">1</span>Émincer l'oignon et le poivron. Trancher les champignons.</div>
+          <div class="step"><span class="step-num">2</span>Faire chauffer l'huile dans une poêle à feu moyen. Faire revenir l'oignon 2 min, ajouter le poivron 2 min, puis les champignons 3–4 min jusqu'à légère coloration. Saler.</div>
+          <div class="step"><span class="step-num">3</span>Battre les œufs avec une pincée de sel. Verser sur les légumes. Cuire 2–3 min à feu moyen-doux sans remuer.</div>
+          <div class="step"><span class="step-num">4</span>Émietter le chèvre sur la moitié de l'omelette. Rabattre. Laisser fondre 1 min.</div>
+          <div class="step"><span class="step-num">5</span>Servir avec les tranches de pain complet toastées.</div>
         </div>
+        <div class="tip-box">Variante : remplacer le chèvre par de l'emmental râpé ou du comté. Ajouter une pomme tranchée à côté pour équilibrer le repas.</div>
       </div>
     </div>
 
-    <div class="recipe-card">
-      <div class="recipe-header" onclick="toggleRecipe(this)">
-        <div><div class="recipe-title">Brunch œufs brouillés (S2 Dimanche)</div><div class="recipe-meta">Dimanche Semaine 2</div></div>
-        <span class="recipe-arrow">▼</span>
-      </div>
-      <div class="recipe-body">
-        <div class="ingr-title">Ingrédients — 1 portion</div>
-        <table class="ingr-table">
-          <tr><td>Œufs</td><td>2–3 pièces</td></tr>
-          <tr><td>Beurre</td><td>10 g</td></tr>
-          <tr><td>Fromage (emmental râpé)</td><td>20 g</td></tr>
-          <tr><td>Pain de seigle</td><td>2 tranches (~60 g)</td></tr>
-          <tr><td>Fruit (orange, kiwi…)</td><td>1 pièce</td></tr>
-        </table>
-        <div class="ingr-title">Préparation (15 min)</div>
-        <div class="step-list">
-          <div class="step"><span class="step-num">1</span>Faire fondre le beurre à feu doux dans une casserole.</div>
-          <div class="step"><span class="step-num">2</span>Ajouter les œufs battus. Remuer constamment avec une spatule en silicone, à feu très doux, pendant 8–10 min.</div>
-          <div class="step"><span class="step-num">3</span>Retirer du feu avant que ça soit complètement cuit (résidual heat finit la cuisson). Ajouter le fromage râpé.</div>
-          <div class="step"><span class="step-num">4</span>Servir sur le pain de seigle toasté avec le fruit.</div>
-        </div>
-        <div class="tip-box">La clé des œufs brouillés parfaits : feu très doux et remuer sans arrêt. Plus c'est lent, plus c'est crémeux.</div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div id="courses" class="panel">
-  <div class="progress-text" id="prog-text">0 / 0 articles cochés</div>
-  <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
-  <div class="check-all" onclick="resetAll()">Tout décocher</div>
-
-  <div class="section-title">🌾 Céréales & féculents</div>
-  <div class="check-list">
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Flocons d'avoine nature</span><span class="check-qty">500 g</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Muesli nature (sans sucre ajouté)</span><span class="check-qty">200 g</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Pain complet (tranches)</span><span class="check-qty">1 paquet</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Pain de seigle (tranches)</span><span class="check-qty">1 paquet</span></div>
-  </div>
-
-  <div class="section-title">🥛 Produits laitiers & œufs</div>
-  <div class="check-list">
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Yaourt grec nature</span><span class="check-qty">1 kg</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Fromage blanc nature</span><span class="check-qty">750 g</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Lait (demi-écrémé)</span><span class="check-qty">1 L</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Emmental ou comté (tranches)</span><span class="check-qty">150 g</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Œufs</span><span class="check-qty">12 pièces</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Beurre</span><span class="check-qty">1 plaquette</span></div>
-  </div>
-
-  <div class="section-title">🍌 Fruits frais</div>
-  <div class="check-list">
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Bananes</span><span class="check-qty">8 pièces</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Pommes</span><span class="check-qty">4 pièces</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Kiwis</span><span class="check-qty">3 pièces</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Oranges</span><span class="check-qty">2 pièces</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Fruits de saison (poire, nectarine…)</span><span class="check-qty">4 pièces</span></div>
-  </div>
-
-  <div class="section-title">🍓 Fruits rouges</div>
-  <div class="check-list">
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Fruits rouges surgelés (ou frais)</span><span class="check-qty">750 g</span></div>
-  </div>
-
-  <div class="section-title">🥜 Oléagineux</div>
-  <div class="check-list">
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Amandes nature</span><span class="check-qty">200 g</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Noix (cerneaux)</span><span class="check-qty">150 g</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Amandes effilées (smoothie bowl)</span><span class="check-qty">50 g</span></div>
-  </div>
-
-  <div class="section-title">🧴 Épicerie & condiments</div>
-  <div class="check-list">
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Miel</span><span class="check-qty">1 pot</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Cannelle en poudre</span><span class="check-qty">1 boîte</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Huile d'olive</span><span class="check-qty">si besoin</span></div>
-  </div>
-
-  <div class="section-title">🥗 Légumes (brunch week-end)</div>
-  <div class="check-list">
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Épinards frais ou surgelés</span><span class="check-qty">100 g</span></div>
-    <div class="check-item" onclick="toggle(this)"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Poivron ou oignon</span><span class="check-qty">1 pièce</span></div>
   </div>
 </div>
 
@@ -349,22 +267,6 @@ function toggleRecipe(header) {
   body.classList.toggle('open');
   arrow.classList.toggle('open');
 }
-function toggle(el) {
-  el.classList.toggle('checked');
-  updateProgress();
-}
-function resetAll() {
-  document.querySelectorAll('.check-item').forEach(el => el.classList.remove('checked'));
-  updateProgress();
-}
-function updateProgress() {
-  const all = document.querySelectorAll('.check-item');
-  const checked = document.querySelectorAll('.check-item.checked');
-  const pct = all.length ? Math.round(checked.length / all.length * 100) : 0;
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-text').textContent = checked.length + ' / ' + all.length + ' articles cochés';
-}
-updateProgress();
 </script>
 
 </body>
