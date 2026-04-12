@@ -11,12 +11,14 @@ import {
 
 const DEFAULT_LIMIT = {
   childrenLimit: 1, // nombre d'enfants inclus (-1 = illimité)
+  adultLimit: 0, // adultes supplémentaires (-1 = illimité)
   aiGenerationsPerWeek: 1, // générations IA par semaine (null = désactivé)
   aiGenerationsPerMonth: null as number | null, // générations IA par mois (null = désactivé)
 };
 
 export type PlanLimit = {
   childrenLimit: number;
+  adultLimit: number; // adultes supplémentaires (-1 = illimité, 0 = aucun)
   aiGenerationsPerWeek: number | null;
   aiGenerationsPerMonth: number | null;
 };
@@ -72,6 +74,7 @@ export const AUTH_PLANS: AppAuthPlan[] = [
       "Parfait pour commencer : 1 adulte + 1 enfant, 1 génération IA par semaine",
     limits: {
       childrenLimit: 1,
+      adultLimit: 0,
       aiGenerationsPerWeek: 1,
       aiGenerationsPerMonth: null,
     },
@@ -88,6 +91,7 @@ export const AUTH_PLANS: AppAuthPlan[] = [
     annualDiscountPriceId: process.env.STRIPE_FAMILLE_YEARLY_PLAN_ID ?? "",
     limits: {
       childrenLimit: 4,
+      adultLimit: 2,
       aiGenerationsPerWeek: null,
       aiGenerationsPerMonth: 20,
     },
@@ -99,8 +103,8 @@ export const AUTH_PLANS: AppAuthPlan[] = [
       onTrialExpired: async (subscription) => {
         logger.debug(`Trial famille expiré pour ${subscription.id}`);
       },
-      onTrialEnd: async (subscription) => {
-        logger.debug(`Trial famille terminé pour ${subscription.id}`);
+      onTrialEnd: async (data) => {
+        logger.debug(`Trial famille terminé pour ${data.subscription.id}`);
       },
     },
     price: 4.99,
@@ -116,6 +120,7 @@ export const AUTH_PLANS: AppAuthPlan[] = [
     annualDiscountPriceId: process.env.STRIPE_PREMIUM_YEARLY_PLAN_ID ?? "",
     limits: {
       childrenLimit: -1, // illimité
+      adultLimit: -1,
       aiGenerationsPerWeek: null,
       aiGenerationsPerMonth: 60,
     },
@@ -135,6 +140,7 @@ export const AUTH_PLANS: AppAuthPlan[] = [
     annualDiscountPriceId: process.env.STRIPE_PRO_YEARLY_PLAN_ID ?? "",
     limits: {
       childrenLimit: -1,
+      adultLimit: -1,
       aiGenerationsPerWeek: null,
       aiGenerationsPerMonth: -1, // illimité
     },
@@ -165,6 +171,18 @@ export const LIMITS_CONFIG: Record<
           ? "1 enfant inclus"
           : `${value} enfants inclus`,
     description: "Nombre d'enfants dans le plan familial",
+  },
+  adultLimit: {
+    icon: Users,
+    getLabel: (value) =>
+      value === -1
+        ? "Adultes illimités"
+        : value === 0
+          ? "Aucun adulte supplémentaire"
+          : value === 1
+            ? "1 adulte supplémentaire"
+            : `${value} adultes supplémentaires`,
+    description: "Adultes supplémentaires dans le foyer",
   },
   aiGenerationsPerWeek: {
     icon: Zap,

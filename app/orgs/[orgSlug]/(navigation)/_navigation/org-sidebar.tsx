@@ -52,9 +52,9 @@ export function OrgSidebar({
 
   const links = useMemo(() => {
     if (isSettingsPage) {
-      return allLinks.filter((group) => group.title === "Organization");
+      return allLinks.filter((group) => group.title === "Organisation");
     }
-    return allLinks.filter((group) => group.title === "Menu");
+    return allLinks.filter((group) => group.title !== "Organisation");
   }, [allLinks, isSettingsPage]);
 
   return (
@@ -93,22 +93,6 @@ export function OrgSidebar({
             <ChangelogDebugActions />
             <UpgradeCard />
             <div className="flex items-center gap-3">
-              <Link
-                href="/docs"
-                className="text-muted-foreground hover:text-foreground text-xs transition-colors"
-                prefetch={false}
-              >
-                Docs
-              </Link>
-              {changelogs.length === 0 && (
-                <Link
-                  href="/changelog"
-                  className="text-muted-foreground hover:text-foreground text-xs transition-colors"
-                  prefetch={false}
-                >
-                  Changelog
-                </Link>
-              )}
               <Link
                 href="/legal/terms"
                 className="text-muted-foreground hover:text-foreground text-xs transition-colors"

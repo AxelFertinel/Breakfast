@@ -1,9 +1,17 @@
 "use client";
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Form, useForm } from "@/features/form/tanstack-form";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
 import { savePhysicalProfileAction } from "@/features/onboarding/onboarding.action";
+import { authClient } from "@/lib/auth-client";
+import { unwrapSafePromise } from "@/lib/promises";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -11,13 +19,14 @@ import { z } from "zod";
 import { OnboardingProgress } from "./_components/onboarding-progress";
 
 const PhysicalProfileSchema = z.object({
-  weightKg: z.coerce.number().min(20).max(300).optional(),
-  heightCm: z.coerce.number().min(50).max(250).optional(),
+  name: z.string().min(1, "Le prénom est requis"),
   birthYear: z.coerce
     .number()
     .min(1900)
     .max(new Date().getFullYear())
     .optional(),
+  weightKg: z.coerce.number().min(20).max(300).optional(),
+  heightCm: z.coerce.number().min(50).max(250).optional(),
   gender: z.enum(["male", "female", "other"]).optional(),
 });
 
@@ -25,10 +34,13 @@ type PhysicalProfileType = z.infer<typeof PhysicalProfileSchema>;
 
 export default function OnboardingPhysicalPage() {
   const router = useRouter();
+  const { data: session } = authClient.useSession();
 
   const mutation = useMutation({
     mutationFn: async (values: PhysicalProfileType) => {
-      return resolveActionResult(savePhysicalProfileAction(values));
+      const { name, ...physicalData } = values;
+      await unwrapSafePromise(authClient.updateUser({ name }));
+      return resolveActionResult(savePhysicalProfileAction(physicalData));
     },
     onSuccess: () => {
       router.push("/onboarding/activity");
@@ -41,9 +53,10 @@ export default function OnboardingPhysicalPage() {
   const form = useForm({
     schema: PhysicalProfileSchema,
     defaultValues: {
+      name: session?.user.name ?? "",
+      birthYear: undefined,
       weightKg: undefined,
       heightCm: undefined,
-      birthYear: undefined,
       gender: undefined,
     },
     onSubmit: async (values) => {
@@ -56,13 +69,37 @@ export default function OnboardingPhysicalPage() {
       <OnboardingProgress currentStep={1} totalSteps={4} />
       <Card>
         <CardHeader>
-          <CardTitle>Votre profil physique</CardTitle>
+          <CardTitle>Votre profil</CardTitle>
           <p className="text-muted-foreground text-sm">
             Ces informations permettent à l'IA d'adapter les quantités et les
             apports nutritionnels à vos besoins.
           </p>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
+          <form.AppField name="name">
+            {(field) => (
+              <field.Field>
+                <field.Label>Prénom</field.Label>
+                <field.Content>
+                  <field.Input placeholder="Marie" />
+                  <field.Message />
+                </field.Content>
+              </field.Field>
+            )}
+          </form.AppField>
+
+          <form.AppField name="birthYear">
+            {(field) => (
+              <field.Field>
+                <field.Label>Année de naissance</field.Label>
+                <field.Content>
+                  <field.Input type="number" placeholder="1990" />
+                  <field.Message />
+                </field.Content>
+              </field.Field>
+            )}
+          </form.AppField>
+
           <div className="grid grid-cols-2 gap-4">
             <form.AppField name="weightKg">
               {(field) => (
@@ -88,18 +125,6 @@ export default function OnboardingPhysicalPage() {
               )}
             </form.AppField>
           </div>
-
-          <form.AppField name="birthYear">
-            {(field) => (
-              <field.Field>
-                <field.Label>Année de naissance</field.Label>
-                <field.Content>
-                  <field.Input type="number" placeholder="1990" />
-                  <field.Message />
-                </field.Content>
-              </field.Field>
-            )}
-          </form.AppField>
 
           <form.AppField name="gender">
             {(field) => (
@@ -136,7 +161,7 @@ export default function OnboardingPhysicalPage() {
         </CardContent>
         <CardFooter className="flex justify-between">
           <p className="text-muted-foreground text-xs">
-            Tous les champs sont optionnels
+            Seul le prénom est requis
           </p>
           <form.SubmitButton>Suivant →</form.SubmitButton>
         </CardFooter>

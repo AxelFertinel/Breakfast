@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-04-12
+FIX: ContactSupportDialog — suppression du useMutation non importé, logique de soumission inline avec useForm
+FIX: DialogComponent — ajout AlertDialogTitle masqué (sr-only) dans le cas custom pour l'accessibilité
+FEATURE: Famille — formulaire complet avec sport multi-select, allergènes et niveau d'activité
+FEATURE: Famille — section adultes supplémentaires gated par plan (upsell si plan gratuit)
+FEATURE: PlanLimit — ajout adultLimit (0 free / 2 famille / -1 premium)
+FEATURE: PhysicalProfile — ajout champ dietaryPrefs (migration DB)
+FEATURE: Onboarding retiré — les nouveaux utilisateurs sont redirigés vers la page Famille
+
+FEATURE: Sidebar — retire liens Docs et Changelog, affiche correctement les groupes de navigation
+FEATURE: Navigation — ajoute lien "Famille" sous "Mon espace" pour accéder aux profils parent/enfants
+FEATURE: Page Famille — affiche profil parent et liste des enfants, avec modification et suppression via dialog
+FIX: TypeScript — corrige erreurs TS dans stock-client, auth-plans, navigation, usage, members et tests
+## 2026-04-12
+
+FEATURE: Onboarding étape 4 — ajout champ personnalisé pour les préférences alimentaires (input + tags supprimables)
+FEATURE: Onboarding étape 1 — ajout champ prénom (met à jour User.name), conservation année de naissance
+FEATURE: Onboarding étape 2 — remplace champs séparés par liste dynamique activité + heures/semaine liées
+FEATURE: Onboarding étape 3 — suppression adultes (créateur = adulte principal), limite enfants par plan, upsell premium, ajout poids/taille enfants
+FIX: Onboarding actions — utilise z.coerce.number() pour éviter erreur "expected number, received string"
+CHORE: Header — retire les liens Docs et About
+
 ## 2026-03-05
 
 CHORE: Upgrade all 58 dependencies to latest versions

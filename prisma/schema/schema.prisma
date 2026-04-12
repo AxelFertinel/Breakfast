@@ -38,6 +38,9 @@ model PhysicalProfile {
   sportTypes        String[] // ["marche", "vélo", "musculation", "yoga", ...]
   activityLevel     String? // "sedentary" | "light" | "moderate" | "active" | "very_active"
 
+  // Préférences alimentaires / allergènes
+  dietaryPrefs  String[] // ["gluten", "lactose", "vegan", ...]
+
   // Objectif petit-déjeuner
   breakfastGoal String? // "perte_poids" | "prise_masse" | "maintien" | "endurance"
 

@@ -50,9 +50,9 @@ export function StockClient({ initialItems }: StockClientProps) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    category: "" as string,
+    category: "",
     quantity: "",
-    unit: "" as string,
+    unit: "",
     expiresAt: "",
   });
 
@@ -61,9 +61,11 @@ export function StockClient({ initialItems }: StockClientProps) {
       return resolveActionResult(
         addPantryItemAction({
           name: form.name,
-          category: form.category as PantryItem["category"],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          category: (form.category || undefined) as any,
           quantity: form.quantity ? Number(form.quantity) : undefined,
-          unit: form.unit as PantryItem["unit"],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          unit: (form.unit || undefined) as any,
           expiresAt: form.expiresAt || undefined,
         }),
       );

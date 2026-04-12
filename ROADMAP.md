@@ -169,8 +169,8 @@ Pro     : illimité
 - [ ] Export PDF brandé (react-pdf) avec logo + couleurs du coach
 - [ ] Notifications push PWA (rappel prépa la veille)
 - [ ] Pages recettes publiques `/recettes/{slug}` — SSR pour SEO
-- [ ] Blog nutrition (MDX) — acquisition organique
-- [ ] Programme de parrainage (+1 mois offert par filleul)
+<!-- - [ ] Blog nutrition (MDX) — acquisition organique
+- [ ] Programme de parrainage (+1 mois offert par filleul) -->
 
 ---
 

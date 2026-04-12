@@ -2,7 +2,6 @@
 
 import { Form, useForm } from "@/features/form/tanstack-form";
 import { authClient } from "@/lib/auth-client";
-import { getCallbackUrl } from "@/lib/auth/auth-utils";
 import { unwrapSafePromise } from "@/lib/promises";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -25,8 +24,10 @@ export const SignUpCredentialsForm = () => {
       toast.error(error.message);
     },
     onSuccess: () => {
-      const newUrl = window.location.origin + getCallbackUrl("/auth/new-user");
-      window.location.href = newUrl;
+      const searchParams = new URLSearchParams(window.location.search);
+      const callbackUrl = searchParams.get("callbackUrl") ?? "/orgs";
+      const newUserUrl = `/auth/new-user?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+      window.location.href = window.location.origin + newUserUrl;
     },
   });
 

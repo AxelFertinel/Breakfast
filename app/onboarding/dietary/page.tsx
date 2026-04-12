@@ -8,14 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
 import {
   completeOnboardingAction,
   saveMemberDietaryPrefsAction,
 } from "@/features/onboarding/onboarding.action";
 import { useMutation } from "@tanstack/react-query";
+import { PlusCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { OnboardingProgress } from "../_components/onboarding-progress";
 
@@ -37,6 +39,11 @@ const DIETS = [
   { value: "paleo", label: "Paléo" },
 ];
 
+const PRESET_VALUES = new Set([
+  ...ALLERGIES.map((a) => a.value),
+  ...DIETS.map((d) => d.value),
+]);
+
 type FamilyMemberWithId = {
   id: string;
   name: string;
@@ -48,16 +55,20 @@ export default function OnboardingDietaryPage() {
   const router = useRouter();
   const [members, setMembers] = useState<FamilyMemberWithId[]>([]);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
+  const [customInput, setCustomInput] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Récupère les membres depuis le serveur
   useEffect(() => {
     fetch("/api/onboarding/family-members")
-      .then((r) => r.json())
+      .then(async (r) => r.json())
       .then((data: FamilyMemberWithId[]) => setMembers(data))
-      .catch(() => {
-        // Si pas de membres, on saute cette étape
-      });
+      .catch(() => {});
   }, []);
+
+  // Reset custom input when switching member
+  useEffect(() => {
+    setCustomInput("");
+  }, [currentMemberIndex]);
 
   const togglePref = (pref: string) => {
     setMembers((prev) =>
@@ -69,6 +80,33 @@ export default function OnboardingDietaryPage() {
                 ? m.dietaryPrefs.filter((p) => p !== pref)
                 : [...m.dietaryPrefs, pref],
             }
+          : m,
+      ),
+    );
+  };
+
+  const addCustomPref = () => {
+    const value = customInput.trim().toLowerCase();
+    if (!value) return;
+    const current = members[currentMemberIndex];
+    if (current && !current.dietaryPrefs.includes(value)) {
+      setMembers((prev) =>
+        prev.map((m, i) =>
+          i === currentMemberIndex
+            ? { ...m, dietaryPrefs: [...m.dietaryPrefs, value] }
+            : m,
+        ),
+      );
+    }
+    setCustomInput("");
+    inputRef.current?.focus();
+  };
+
+  const removeCustomPref = (pref: string) => {
+    setMembers((prev) =>
+      prev.map((m, i) =>
+        i === currentMemberIndex
+          ? { ...m, dietaryPrefs: m.dietaryPrefs.filter((p) => p !== pref) }
           : m,
       ),
     );
@@ -102,7 +140,6 @@ export default function OnboardingDietaryPage() {
     if (current) {
       await saveMutation.mutateAsync(current);
     }
-
     if (currentMemberIndex < members.length - 1) {
       setCurrentMemberIndex((prev) => prev + 1);
     } else {
@@ -115,6 +152,8 @@ export default function OnboardingDietaryPage() {
   };
 
   const currentMember = members[currentMemberIndex];
+  const customPrefs =
+    currentMember?.dietaryPrefs.filter((p) => !PRESET_VALUES.has(p)) ?? [];
 
   return (
     <div>
@@ -183,6 +222,54 @@ export default function OnboardingDietaryPage() {
               })}
             </div>
           </div>
+
+          <div>
+            <p className="mb-2 text-sm font-medium">Personnalisé</p>
+            <div className="flex gap-2">
+              <Input
+                ref={inputRef}
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomPref();
+                  }
+                }}
+                placeholder="Ex: sans porc, crudités, sans huile de palme…"
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={addCustomPref}
+                disabled={!customInput.trim()}
+              >
+                <PlusCircle size={16} />
+              </Button>
+            </div>
+
+            {customPrefs.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {customPrefs.map((pref) => (
+                  <span
+                    key={pref}
+                    className="border-primary bg-primary/10 text-primary flex items-center gap-1 rounded-full border px-3 py-1 text-sm"
+                  >
+                    {pref}
+                    <button
+                      type="button"
+                      onClick={() => removeCustomPref(pref)}
+                      className="hover:text-destructive ml-1 transition-colors"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </CardContent>
         <CardFooter className="flex justify-between">
           <div className="flex gap-2">
@@ -211,7 +298,7 @@ export default function OnboardingDietaryPage() {
               ? "Finalisation…"
               : currentMemberIndex < members.length - 1
                 ? "Suivant →"
-                : "Terminer ✓"}
+                : "Terminer"}
           </Button>
         </CardFooter>
       </Card>

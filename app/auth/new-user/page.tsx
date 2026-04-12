@@ -1,4 +1,5 @@
 import { getRequiredUser } from "@/lib/auth/auth-user";
+import { getServerUrl } from "@/lib/server-url";
 import { prisma } from "@/lib/prisma";
 import { SiteConfig } from "@/site-config";
 import type { Metadata } from "next";
@@ -10,11 +11,6 @@ export const metadata: Metadata = {
   description: "Bienvenue ! Configurez votre profil pour personnaliser vos petits-déjeuners.",
 };
 
-/**
- * Page affichée après la première connexion.
- * Redirige vers l'onboarding si le profil physique n'est pas complété,
- * sinon redirige vers le dashboard.
- */
 export default function Page(props: PageProps<"/auth/new-user">) {
   return (
     <Suspense fallback={null}>
@@ -28,21 +24,37 @@ async function NewUserPage(props: PageProps<"/auth/new-user">) {
   const callbackUrl =
     typeof searchParams.callbackUrl === "string"
       ? searchParams.callbackUrl
-      : "/orgs";
+      : null;
 
   const user = await getRequiredUser();
 
-  const physicalProfile = await prisma.physicalProfile.findUnique({
+  // Chercher l'org de l'utilisateur
+  const member = await prisma.member.findFirst({
     where: { userId: user.id },
-    select: { onboardingCompleted: true },
+    select: { organization: { select: { slug: true } } },
   });
 
-  if (!physicalProfile || !physicalProfile.onboardingCompleted) {
-    // Première connexion : rediriger vers l'onboarding
-    const onboardingUrl = `/onboarding?callbackUrl=${encodeURIComponent(callbackUrl)}`;
-    redirect(onboardingUrl);
+  // Si pas encore d'org, rediriger vers la création
+  if (!member?.organization.slug) {
+    redirect("/orgs/new");
+    return null;
   }
 
-  // Onboarding déjà complété : aller directement au dashboard
-  redirect(callbackUrl);
+  const orgSlug = member.organization.slug;
+
+  // Vérifier si le profil a déjà été rempli
+  const profile = await prisma.physicalProfile.findUnique({
+    where: { userId: user.id },
+    select: { weightKg: true, onboardingCompleted: true },
+  });
+
+  // Si profil incomplet → rediriger vers la page Famille pour compléter
+  if (!profile?.onboardingCompleted && !profile?.weightKg) {
+    redirect(`/orgs/${orgSlug}/famille`);
+    return null;
+  }
+
+  // Profil existant → aller au callbackUrl ou au dashboard
+  redirect(callbackUrl ?? `/orgs/${orgSlug}`);
+  return null;
 }

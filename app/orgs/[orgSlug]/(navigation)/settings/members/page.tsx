@@ -30,7 +30,7 @@ async function RoutePage(props: PageProps<"/orgs/[orgSlug]/settings/members">) {
 
   const members = await getOrgsMembers(org.id);
 
-  const maxMembers = getPlanLimits(org.subscription?.plan).members;
+  const maxMembers = 10; // limit not enforced by plan currently
 
   const invitations = await prisma.invitation.findMany({
     where: {

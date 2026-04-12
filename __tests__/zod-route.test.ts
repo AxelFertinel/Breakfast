@@ -108,7 +108,7 @@ describe("zod-route", () => {
       invitations: [],
       metadata: null,
       stripeCustomerId: null,
-      limits: { projects: 5, storage: 10, members: 3 },
+      limits: { childrenLimit: 1, adultLimit: 0, aiGenerationsPerWeek: null, aiGenerationsPerMonth: 10 },
     };
     vi.mocked(getCurrentOrg).mockResolvedValue(organization);
 

@@ -8,16 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Form, useForm } from "@/features/form/tanstack-form";
+import { Input } from "@/components/ui/input";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
 import { saveActivityProfileAction } from "@/features/onboarding/onboarding.action";
 import { useMutation } from "@tanstack/react-query";
+import { PlusCircle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { OnboardingProgress } from "../_components/onboarding-progress";
 
-const SPORT_TYPES = [
+const SPORT_OPTIONS = [
   { value: "marche", label: "Marche" },
   { value: "course", label: "Course à pied" },
   { value: "velo", label: "Vélo" },
@@ -31,25 +32,61 @@ const SPORT_TYPES = [
   { value: "autre", label: "Autre" },
 ];
 
-const ActivitySchema = z.object({
-  sportHoursPerWeek: z.coerce.number().min(0).max(40).optional(),
-  sportTypes: z.array(z.string()).default([]),
-  activityLevel: z
-    .enum(["sedentary", "light", "moderate", "active", "very_active"])
-    .optional(),
-  breakfastGoal: z
-    .enum(["perte_poids", "prise_masse", "maintien", "endurance"])
-    .optional(),
-});
+const ACTIVITY_LEVELS = [
+  { value: "sedentary", label: "Sédentaire", description: "Bureau, peu de marche" },
+  { value: "light", label: "Légèrement actif", description: "Marche quotidienne" },
+  { value: "moderate", label: "Modérément actif", description: "Sport 3x/semaine" },
+  { value: "active", label: "Actif", description: "Sport 5x/semaine" },
+  { value: "very_active", label: "Très actif", description: "Sport intense quotidien" },
+] as const;
 
-type ActivityType = z.infer<typeof ActivitySchema>;
+const BREAKFAST_GOALS = [
+  { value: "maintien", label: "Maintien du poids" },
+  { value: "perte_poids", label: "Perte de poids" },
+  { value: "prise_masse", label: "Prise de masse" },
+  { value: "endurance", label: "Endurance / Sport" },
+] as const;
+
+type ActivityEntry = { sport: string; hoursPerWeek: number };
+type ActivityLevel = (typeof ACTIVITY_LEVELS)[number]["value"];
+type BreakfastGoal = (typeof BREAKFAST_GOALS)[number]["value"];
 
 export default function OnboardingActivityPage() {
   const router = useRouter();
+  const [activities, setActivities] = useState<ActivityEntry[]>([]);
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel | undefined>();
+  const [breakfastGoal, setBreakfastGoal] = useState<BreakfastGoal | undefined>();
+
+  const addActivity = () => {
+    setActivities((prev) => [...prev, { sport: "marche", hoursPerWeek: 1 }]);
+  };
+
+  const updateActivity = (
+    index: number,
+    field: keyof ActivityEntry,
+    value: string | number,
+  ) => {
+    setActivities((prev) =>
+      prev.map((a, i) => (i === index ? { ...a, [field]: value } : a)),
+    );
+  };
+
+  const removeActivity = (index: number) => {
+    setActivities((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const mutation = useMutation({
-    mutationFn: async (values: ActivityType) => {
-      return resolveActionResult(saveActivityProfileAction(values));
+    mutationFn: async () => {
+      const sportTypes = activities.map((a) => a.sport);
+      const sportHoursPerWeek = activities.reduce((sum, a) => sum + a.hoursPerWeek, 0);
+      return resolveActionResult(
+        saveActivityProfileAction({
+          sportTypes,
+          sportHoursPerWeek: sportHoursPerWeek > 0 ? sportHoursPerWeek : undefined,
+          activityLevel,
+          breakfastGoal,
+        }),
+      );
     },
     onSuccess: () => {
       router.push("/onboarding/family");
@@ -59,21 +96,13 @@ export default function OnboardingActivityPage() {
     },
   });
 
-  const form = useForm({
-    schema: ActivitySchema,
-    defaultValues: {
-      sportHoursPerWeek: undefined,
-      sportTypes: [],
-      activityLevel: undefined,
-      breakfastGoal: undefined,
-    },
-    onSubmit: async (values) => {
-      await mutation.mutateAsync(values);
-    },
-  });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate();
+  };
 
   return (
-    <Form form={form}>
+    <form onSubmit={handleSubmit}>
       <OnboardingProgress currentStep={2} totalSteps={4} />
       <Card>
         <CardHeader>
@@ -83,138 +112,121 @@ export default function OnboardingActivityPage() {
             d'activité.
           </p>
         </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          <form.AppField name="sportHoursPerWeek">
-            {(field) => (
-              <field.Field>
-                <field.Label>Heures de sport par semaine</field.Label>
-                <field.Content>
-                  <field.Input type="number" placeholder="3" />
-                  <field.Message />
-                </field.Content>
-              </field.Field>
-            )}
-          </form.AppField>
+        <CardContent className="flex flex-col gap-6">
 
-          <form.AppField name="sportTypes">
-            {(field) => (
-              <field.Field>
-                <field.Label>Types de sport pratiqués</field.Label>
-                <field.Content>
-                  <div className="flex flex-wrap gap-2">
-                    {SPORT_TYPES.map((sport) => {
-                      const selected = (
-                        field.state.value as string[]
-                      ).includes(sport.value);
-                      return (
-                        <button
-                          key={sport.value}
-                          type="button"
-                          onClick={() => {
-                            const current = field.state.value as string[];
-                            field.setValue(
-                              selected
-                                ? current.filter((v) => v !== sport.value)
-                                : [...current, sport.value],
-                            );
-                          }}
-                          className={`rounded-full border px-3 py-1 text-sm transition-colors ${
-                            selected
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-input hover:bg-accent"
-                          }`}
-                        >
-                          {sport.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <field.Message />
-                </field.Content>
-              </field.Field>
-            )}
-          </form.AppField>
+          <div className="flex flex-col gap-3">
+            <p className="text-sm font-medium">Activités pratiquées</p>
 
-          <form.AppField name="activityLevel">
-            {(field) => (
-              <field.Field>
-                <field.Label>Niveau d'activité général</field.Label>
-                <field.Content>
-                  <div className="flex flex-col gap-2">
-                    {(
-                      [
-                        { value: "sedentary", label: "Sédentaire (bureau, peu de marche)" },
-                        { value: "light", label: "Légèrement actif (marche quotidienne)" },
-                        { value: "moderate", label: "Modérément actif (sport 3x/semaine)" },
-                        { value: "active", label: "Actif (sport 5x/semaine)" },
-                        { value: "very_active", label: "Très actif (sport intense quotidien)" },
-                      ] as const
-                    ).map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => field.setValue(opt.value)}
-                        className={`rounded-md border px-3 py-2 text-left text-sm transition-colors ${
-                          field.state.value === opt.value
-                            ? "border-primary bg-primary/10 text-primary font-medium"
-                            : "border-input hover:bg-accent"
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                  <field.Message />
-                </field.Content>
-              </field.Field>
+            {activities.length === 0 && (
+              <p className="text-muted-foreground text-sm">
+                Aucune activité — vous pouvez passer cette étape.
+              </p>
             )}
-          </form.AppField>
 
-          <form.AppField name="breakfastGoal">
-            {(field) => (
-              <field.Field>
-                <field.Label>Objectif principal</field.Label>
-                <field.Content>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(
-                      [
-                        { value: "maintien", label: "Maintien du poids" },
-                        { value: "perte_poids", label: "Perte de poids" },
-                        { value: "prise_masse", label: "Prise de masse" },
-                        { value: "endurance", label: "Endurance / Sport" },
-                      ] as const
-                    ).map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => field.setValue(opt.value)}
-                        className={`rounded-md border px-3 py-2 text-sm transition-colors ${
-                          field.state.value === opt.value
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-input hover:bg-accent"
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                  <field.Message />
-                </field.Content>
-              </field.Field>
-            )}
-          </form.AppField>
+            {activities.map((activity, index) => (
+              <div
+                key={index}
+                className="border-input flex items-center gap-3 rounded-lg border p-3"
+              >
+                <select
+                  value={activity.sport}
+                  onChange={(e) => updateActivity(index, "sport", e.target.value)}
+                  className="border-input bg-background flex-1 rounded-md border px-3 py-2 text-sm"
+                >
+                  {SPORT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={0.5}
+                    max={40}
+                    step={0.5}
+                    value={activity.hoursPerWeek}
+                    onChange={(e) =>
+                      updateActivity(index, "hoursPerWeek", parseFloat(e.target.value) || 1)
+                    }
+                    className="w-20"
+                  />
+                  <span className="text-muted-foreground whitespace-nowrap text-sm">h/sem</span>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="text-destructive hover:text-destructive shrink-0"
+                  onClick={() => removeActivity(index)}
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
+            ))}
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="self-start"
+              onClick={addActivity}
+            >
+              <PlusCircle size={16} className="mr-2" />
+              Ajouter une activité
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">Niveau d'activité général</p>
+            <div className="flex flex-col gap-2">
+              {ACTIVITY_LEVELS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setActivityLevel(opt.value)}
+                  className={`rounded-md border px-3 py-2 text-left text-sm transition-colors ${ 
+                    activityLevel === opt.value
+                      ? "border-primary bg-primary/10 font-medium text-primary"
+                      : "border-input hover:bg-accent"}`}
+                >
+                  <span className="font-medium">{opt.label}</span>
+                  <span className="text-muted-foreground ml-2">{opt.description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">Objectif principal</p>
+            <div className="grid grid-cols-2 gap-2">
+              {BREAKFAST_GOALS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setBreakfastGoal(opt.value)}
+                  className={`rounded-md border px-3 py-2 text-sm transition-colors ${ 
+                    breakfastGoal === opt.value
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-input hover:bg-accent"}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => router.push("/onboarding")}
-          >
+          <Button type="button" variant="ghost" onClick={() => router.push("/onboarding")}>
             ← Retour
           </Button>
-          <form.SubmitButton>Suivant →</form.SubmitButton>
+          <Button type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? "Enregistrement…" : "Suivant →"}
+          </Button>
         </CardFooter>
       </Card>
-    </Form>
+    </form>
   );
 }

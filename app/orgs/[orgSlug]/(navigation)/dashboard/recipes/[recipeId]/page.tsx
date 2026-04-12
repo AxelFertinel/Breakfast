@@ -49,11 +49,11 @@ async function RecipePageContent(
     },
   }));
 
-  const ingredients = recipe.ingredients as Array<{
+  const ingredients = recipe.ingredients as {
     name: string;
     quantity?: number;
     unit?: string;
-  }>;
+  }[];
   const steps = recipe.steps as string[];
 
   const badgeConf = recipe.badgeType
@@ -61,7 +61,7 @@ async function RecipePageContent(
     : null;
 
   return (
-    <Layout size="md">
+    <Layout size="lg">
       <LayoutHeader>
         <div className="flex items-center gap-3">
           <Link href={`/orgs/${params.orgSlug}/dashboard`}>

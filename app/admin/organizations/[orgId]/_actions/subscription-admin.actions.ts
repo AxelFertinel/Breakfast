@@ -303,9 +303,9 @@ export const updateOverrideLimitsAction = adminAction
       organizationId: z.string(),
       overrideLimits: z
         .object({
-          projects: z.number().int().min(0).optional(),
-          storage: z.number().int().min(0).optional(),
-          members: z.number().int().min(0).optional(),
+          childrenLimit: z.number().int().min(-1).optional(),
+          aiGenerationsPerWeek: z.number().int().min(0).nullable().optional(),
+          aiGenerationsPerMonth: z.number().int().min(0).nullable().optional(),
         })
         .optional(),
     }),

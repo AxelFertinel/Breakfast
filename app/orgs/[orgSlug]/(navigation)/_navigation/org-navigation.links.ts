@@ -12,7 +12,7 @@ import {
   Settings,
   ShoppingCart,
   TriangleAlert,
-  UtensilsCrossed,
+  Users,
   User2,
   Package,
 } from "lucide-react";
@@ -96,6 +96,11 @@ export const ORGANIZATION_LINKS: NavigationGroup[] = [
         href: `${ORGANIZATION_PATH}/dashboard/streaks`,
         Icon: Flame,
         label: "Mes streaks",
+      },
+      {
+        href: `${ORGANIZATION_PATH}/famille`,
+        Icon: Users,
+        label: "Famille",
       },
     ],
   },

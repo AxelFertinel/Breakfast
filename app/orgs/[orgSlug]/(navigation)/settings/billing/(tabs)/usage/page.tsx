@@ -57,7 +57,7 @@ async function BillingUsagePage() {
     <UsageChart
       data={usageData}
       totalUsage={totalUsage}
-      limit={planLimits.projects}
+      limit={planLimits.aiGenerationsPerMonth ?? 999}
       billingPeriodStart={billingPeriodStart.toDate()}
       billingPeriodEnd={billingPeriodEnd.toDate()}
     />

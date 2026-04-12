@@ -6,6 +6,8 @@ if (!process.env.REDIS_URL) {
   );
 }
 
+const isTLS = process.env.REDIS_URL.startsWith("rediss://");
+
 export const redisClient = new Redis(process.env.REDIS_URL, {
   maxRetriesPerRequest: 3,
   retryStrategy: (times) => {
@@ -15,4 +17,5 @@ export const redisClient = new Redis(process.env.REDIS_URL, {
     return Math.min(times * 50, 2000);
   },
   lazyConnect: false,
+  tls: isTLS ? { rejectUnauthorized: false } : undefined,
 });
