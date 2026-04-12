@@ -25,7 +25,7 @@ export const SignUpCredentialsForm = () => {
       toast.error(error.message);
     },
     onSuccess: () => {
-      const newUrl = window.location.origin + getCallbackUrl("/orgs");
+      const newUrl = window.location.origin + getCallbackUrl("/auth/new-user");
       window.location.href = newUrl;
     },
   });
