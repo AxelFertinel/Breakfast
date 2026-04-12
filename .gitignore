@@ -46,3 +46,14 @@ src/generated
 # AI tools
 .claude/
 .cursor/
+CLAUDE.md
+AGENTS.md
+
+# Docs (generated)
+/docs/
+
+# IDE
+.vscode/
+
+# Next.js generated
+next-env.d.ts
