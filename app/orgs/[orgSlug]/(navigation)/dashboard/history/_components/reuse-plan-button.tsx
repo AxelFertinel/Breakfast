@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
-import { reuseMealPlanAction } from "@/src/features/meal-plans/meal-plans.action";
+import { reuseMealPlanAction } from "@/features/meal-plans/meal-plans.action";
 import { useMutation } from "@tanstack/react-query";
 import { Copy } from "lucide-react";
 import { useRouter } from "next/navigation";

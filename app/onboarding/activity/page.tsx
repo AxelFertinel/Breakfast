@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Form, useForm } from "@/features/form/tanstack-form";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
-import { saveActivityProfileAction } from "@/src/features/onboarding/onboarding.action";
+import { saveActivityProfileAction } from "@/features/onboarding/onboarding.action";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

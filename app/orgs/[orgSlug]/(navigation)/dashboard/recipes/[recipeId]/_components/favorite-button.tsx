@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
-import { toggleFavoriteAction } from "@/src/features/meal-plans/meal-plans.action";
+import { toggleFavoriteAction } from "@/features/meal-plans/meal-plans.action";
 import { useMutation } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import { useState } from "react";

@@ -12,7 +12,7 @@ import { resolveActionResult } from "@/lib/actions/actions-utils";
 import {
   completeOnboardingAction,
   saveMemberDietaryPrefsAction,
-} from "@/src/features/onboarding/onboarding.action";
+} from "@/features/onboarding/onboarding.action";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

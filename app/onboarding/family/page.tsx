@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
-import { saveFamilyMembersAction } from "@/src/features/onboarding/onboarding.action";
+import { saveFamilyMembersAction } from "@/features/onboarding/onboarding.action";
 import { useMutation } from "@tanstack/react-query";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
