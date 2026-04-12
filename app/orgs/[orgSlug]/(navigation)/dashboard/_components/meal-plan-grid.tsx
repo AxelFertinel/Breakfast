@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
-import { logBreakfastAction } from "@/src/features/meal-plans/meal-plans.action";
+import { logBreakfastAction } from "@/features/meal-plans/meal-plans.action";
 import { useMutation } from "@tanstack/react-query";
 import { CheckCircle, ChefHat, Flame, Sparkles } from "lucide-react";
 import Link from "next/link";

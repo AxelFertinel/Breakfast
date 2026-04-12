@@ -21,9 +21,9 @@ import { resolveActionResult } from "@/lib/actions/actions-utils";
 import {
   addPantryItemAction,
   deletePantryItemAction,
-} from "@/src/features/stock/stock.action";
+} from "@/features/stock/stock.action";
 import type { PantryItem } from "@/generated/prisma";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Package, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
