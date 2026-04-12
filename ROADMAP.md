@@ -2,22 +2,23 @@
 
 ## Contexte
 
-L'app actuelle est un fichier HTML statique (plan 2 semaines, 7 recettes, liste de courses).
-Cible : SaaS freemium B2C + B2B (coachs / nutritionnistes), stack full-stack, horizon 6+ mois.
+Application SaaS de planification intelligente de petits-déjeuners, alimentée par l'IA.  
+Focus unique : **100% petit-déjeuner**, logique "veille vs 2 min le matin", conseil nutritionnel embarqué.  
+Stack full-stack, horizon 6+ mois.
 
 ---
 
-## Stack recommandée
+## Stack technique
 
 | Couche | Outil | Raison |
 |---|---|---|
 | Frontend | Next.js 14 (App Router, TypeScript) | SSR pour SEO, API routes intégrées |
-| Styles | Tailwind CSS + shadcn/ui | Remplacement du CSS inline |
-| Auth | Supabase Auth | Magic link + Google OAuth, gratuit |
-| Base de données | Supabase (PostgreSQL) | Schéma relationnel, RLS par user |
+| Styles | Tailwind CSS + shadcn/ui | Composants accessibles, design system cohérent |
+| Auth | better-auth | Magic link + Google OAuth + OTP email |
+| Base de données | Prisma + PostgreSQL (Supabase) | Schéma relationnel, typesafe |
 | IA (principal) | Gemini 2.5 Flash | $0,30/$2,50 par M tokens — 90% des appels |
 | IA (avancé) | Gemini 2.5 Pro | Analyse photo, personnalisation poussée |
-| Rate limiting | Upstash Redis | Compteur d'appels IA par user/mois |
+| Rate limiting | Table `ai_usage` Prisma | Compteur d'appels IA par user/semaine ou mois |
 | Paiements | Stripe | Checkout, Customer Portal, Webhooks |
 | Email | Resend | Rappels préparation, récap hebdo |
 | PDF | react-pdf | Export plans brandés (tier Pro) |
@@ -28,52 +29,92 @@ Cible : SaaS freemium B2C + B2B (coachs / nutritionnistes), stack full-stack, ho
 ## Tiers de monétisation
 
 ### Gratuit (forever)
-- Plan 2 semaines pré-défini (app actuelle)
-- 7 recettes incluses
-- Liste de courses basique
-- **IA : 3 générations/mois**
-- Pas de sauvegarde cloud
+- 1 adulte + **1 enfant** inclus
+- **1 génération IA par semaine** (couvre tous les membres de la famille)
+- Plan 2 semaines pré-défini (7 recettes)
+- Mon stock (gestion des ingrédients)
+- Liste de courses stock-aware
+- Favoris recettes
 
-### Premium — €5,99/mois · €57,50/an
-- Plans personnalisés illimités (générer, sauvegarder, modifier)
-- Personnalisation : régimes, allergies, nb de personnes, budget, saison
-- **IA : 30 générations/mois**
+### Famille — €4,99/mois · €47,90/an
+- 1 adulte + **jusqu'à 4 enfants**
+- **20 générations IA par mois**
+- Profils complets par membre (allergies, régimes, activité)
 - Export liste de courses PDF
-- Données nutritionnelles par repas
+- Historique des semaines illimité
+
+### Premium — €8,99/mois · €86,90/an
+- Membres **illimités**
+- **60 générations IA par mois**
+- Score nutritionnel de la semaine
 - Rappels email (prépa la veille)
-- Historique des plans
+- "Inspirer-moi" : régénération partielle de 1–3 jours
 
 ### Pro (Coachs / Nutritionnistes) — €19,99/mois · €159,90/an
 - Tout Premium
-- **IA : illimitée**
+- **IA illimitée**
 - Dashboard multi-clients (profils, préférences, plans assignés)
 - Export PDF brandé (logo + couleurs du coach)
 - Liens partage client (lecture seule, sans compte requis)
-- Rapports mensuels par client
-
-### One-time purchases
-- Packs recettes thématiques : **€3,99** chacun
-  - Pack Vegan, Pack Sport, Pack Budget, Pack Ultra-rapide
 
 ---
 
-## Schéma base de données (Supabase)
+## Profil & Personnalisation IA
+
+À la première connexion, l'utilisateur complète un wizard 4 étapes :
+
+1. **Profil physique** : poids, taille, année de naissance, genre
+2. **Activité sportive** : heures/semaine, types de sport, niveau d'activité, objectif (perte de poids / prise de masse / maintien / endurance)
+3. **Famille** : ajout des membres du foyer (adultes supplémentaires + enfants) avec âge
+4. **Préférences alimentaires** : allergies (gluten, lactose, arachides, œufs, fruits à coque, soja) et régimes (vegan, végétarien, sans sucre, halal, kasher, paléo) **par membre**
+
+Ces données alimentent le prompt IA à chaque génération :
+
+```
+Tu es un expert en nutrition du petit-déjeuner, tu réponds en français.
+Profil adulte : {poids}kg, {taille}cm, {age} ans, objectif : {goal}, activité : {activityLevel}.
+Membres de la famille : {familyMembers avec leurs préférences}.
+Stock disponible : {pantryItems}.
+Contraintes alimentaires : {allergies et régimes par membre}.
+Génère un plan de 7 petits-déjeuners équilibrés, adapté à ces profils.
+Retourne du JSON valide : [{day, meal_name, prep_time, badge_type, recipe_key}]
+```
+
+**Tiered routing IA :**
+- Appels simples (génération planning, variantes) → Gemini 2.5 Flash
+- Appels avancés (analyse photo du bol, personnalisation poussée) → Gemini 2.5 Pro
+
+---
+
+## Schéma base de données
 
 ```sql
--- Utilisateurs & abonnements
-users            (id, email, tier, preferences jsonb, created_at)
-subscriptions    (id, user_id, stripe_customer_id, stripe_sub_id, tier, status)
+-- Auth (géré par better-auth, ne pas modifier directement)
+user             (id, email, name, image, ...)
+session / account / verification
 
--- Contenu
-meal_plans       (id, user_id, week_start, meals jsonb, generated_by)
-recipes          (id, user_id, title, ingredients jsonb, steps jsonb, is_public, slug)
-shopping_lists   (id, user_id, meal_plan_id, items jsonb, checked_ids jsonb)
+-- Profils
+physical_profile (id, userId, weightKg, heightCm, birthYear, gender,
+                  sportHoursPerWeek, sportTypes[], activityLevel,
+                  breakfastGoal, onboardingCompleted)
+family_member    (id, userId, name, type, birthYear, weightKg, heightCm,
+                  sportTypes[], activityLevel, dietaryPrefs[])
 
--- IA
-ai_usage         (id, user_id, feature, created_at)  -- rate limiting
+-- Stock
+pantry_item      (id, userId, name, category, quantity, unit, expiresAt)
 
--- B2B
-client_profiles  (id, coach_id, client_name, preferences jsonb)
+-- Recettes & Plans
+recipe           (id, userId?, title, slug, badgeType, prepTime,
+                  ingredients json, steps json, nutritionData json?, isPublic)
+meal_plan        (id, userId, weekStart)
+meal_slot        (id, mealPlanId, recipeId, dayOfWeek)
+favorite_recipe  (id, userId, recipeId)
+
+-- Suivi
+breakfast_log    (id, userId, date, recipeId?)   -- streaks
+
+-- Abonnements (Stripe)
+subscription     (id, plan, referenceId, stripeCustomerId, ...)
 ```
 
 ---
@@ -81,48 +122,45 @@ client_profiles  (id, coach_id, client_name, preferences jsonb)
 ## Roadmap en 3 phases
 
 ### Phase 1 — Foundation (mois 1–2)
-> Infrastructure réelle, pas encore d'IA
+> Infrastructure complète, sans IA réelle (recettes statiques puis générées)
 
-- [ ] Intégration dans le boilerplate (auth, DB, routing)
-- [ ] Page onboarding : capture préférences (régime, nb personnes, budget, allergies)
-- [ ] Persistence plans & listes de courses en base
-- [ ] Stripe : page pricing, Checkout, Webhooks → mise à jour tier en base
-- [ ] `SubscriptionGate` component : bloquer les features payantes avec CTA upgrade
-- [ ] Quota meter dans le header (X/3 générations restantes ce mois)
+- [x] Boilerplate : auth, DB, routing, Stripe (better-auth + Prisma)
+- [x] Schéma Prisma complet (PhysicalProfile, FamilyMember, PantryItem, Recipe, MealPlan, MealSlot, FavoriteRecipe, BreakfastLog)
+- [x] Plans Stripe adaptés Breakfast (free / famille / premium / pro)
+- [x] Wizard onboarding 4 étapes (profil physique → activité → famille → préférences alimentaires)
+- [x] Redirect conditionnel first-connection → onboarding
+- [x] Page "Mon stock" avec CRUD ingrédients
+- [x] Dashboard "Ma semaine" avec MealPlanGrid
+- [x] Page détail recette (navigation depuis la grille)
+- [x] Favoris recettes
+- [x] Liste de courses stock-aware
+- [x] Historique des semaines + réutilisation
+- [x] Streaks & badges (7/30/100 jours)
+- [ ] `SubscriptionGate` component (bloquer >1 enfant en free)
+- [ ] Quota meter IA dans le header (X/1 génération restante cette semaine)
+- [ ] Stripe : page pricing, Checkout, Webhooks → mise à jour tier
 
 ### Phase 2 — IA (mois 3–4)
-> Features IA avec rate limiting strict
+> Intégration Gemini avec rate limiting strict
 
 | Feature | Input | Output |
 |---|---|---|
-| Générateur de plan | Prefs + saison + temps dispo | Plan 7 jours (JSON structuré) |
-| Générateur de recette | Ingrédients dispo + contraintes | Recette complète avec étapes |
-| Optimiseur de courses | Plan sélectionné + nb personnes | Liste consolidée avec quantités |
-| Conseil nutritionnel | Plan de la semaine | Analyse équilibre + suggestions |
+| Générateur de plan | Profil + famille + stock + saison | Plan 7 jours (JSON structuré) |
+| "Inspirer-moi" | Plan existant + jours sélectionnés | 1–3 jours remplacés |
+| Générateur de recette | Ingrédients + contraintes | Recette complète avec étapes |
+| Optimiseur de courses | Plan sélectionné + stock | Liste consolidée avec quantités |
+| "Que faire avec ce que j'ai ?" | Stock uniquement | 1 recette express |
+| Score nutritionnel | Recettes de la semaine | Analyse équilibre (protéines / glucides / fibres) |
 
-**Rate limiting avec Upstash Redis :**
+**Rate limiting :**
 ```
-Avant chaque appel IA → compter les rows de ai_usage
-WHERE user_id = X AND created_at > début_du_mois
-
-Free : 3 | Premium : 30 | Pro : ∞
-Si dépassé → 429 + message d'upgrade
-```
-
-**Streaming Gemini API** pour les recettes (feedback visuel immédiat).
-
-**Stratégie tiered routing :**
-```
-Appels simples (génération planning, variantes recettes) → Gemini 2.5 Flash
-Appels avancés (analyse photo du bol, personnalisation poussée) → Gemini 2.5 Pro
+Free    : 1 appel / 7 jours glissants (via ai_usage)
+Famille : 20 appels / mois
+Premium : 60 appels / mois
+Pro     : illimité
 ```
 
-**Prompt système de base :**
-```
-Tu es un expert en nutrition du petit-déjeuner, tu réponds en français.
-Tu génères des plans équilibrés adaptés aux préférences utilisateur : {profil}.
-Retourne toujours du JSON valide avec la structure demandée.
-```
+**"Que faire avec ce que j'ai ?"** : hors quota (appel léger distinct), disponible sur la page Mon stock.
 
 ### Phase 3 — Pro & Croissance (mois 5–6)
 > B2B + rétention + acquisition
@@ -130,73 +168,40 @@ Retourne toujours du JSON valide avec la structure demandée.
 - [ ] Dashboard coach : gestion clients, assignation de plans
 - [ ] Export PDF brandé (react-pdf) avec logo + couleurs du coach
 - [ ] Notifications push PWA (rappel prépa la veille)
-- [ ] Gamification : streaks (jours consécutifs suivis)
 - [ ] Pages recettes publiques `/recettes/{slug}` — SSR pour SEO
 - [ ] Blog nutrition (MDX) — acquisition organique
 - [ ] Programme de parrainage (+1 mois offert par filleul)
 
 ---
 
-## Structure de fichiers recommandée
+## Structure de fichiers
 
 ```
 /app
-  /page.tsx                        ← landing page (SEO)
-  /pricing/page.tsx
-  /onboarding/page.tsx
-  /dashboard/page.tsx              ← plan de la semaine
-  /dashboard/recipes/page.tsx
-  /dashboard/shopping/page.tsx
-  /dashboard/ai/page.tsx           ← générateurs IA
-  /recettes/[slug]/page.tsx        ← pages publiques SEO
+  /onboarding/                    ← wizard 4 étapes (première connexion)
+  /orgs/[orgSlug]/
+    /(navigation)/
+      /dashboard/                 ← semaine en cours (MealPlanGrid)
+        /recipes/[recipeId]/      ← page détail recette
+        /favorites/               ← recettes favorites
+        /shopping/                ← liste de courses stock-aware
+        /history/                 ← semaines passées
+        /streaks/                 ← streaks & badges
+      /stock/                     ← Mon stock (PantryItem CRUD)
   /api
-    /ai/generate-plan/route.ts
-    /ai/generate-recipe/route.ts
-    /ai/shopping-list/route.ts
-    /stripe/webhook/route.ts
-    /stripe/checkout/route.ts
-/lib
-  /supabase.ts
-  /stripe.ts
-  /gemini.ts                       ← wrapper Gemini API + streaming
-  /rate-limit.ts                   ← vérification quota Upstash
-/components
-  /MealPlanGrid.tsx
-  /RecipeCard.tsx
-  /ShoppingList.tsx
-  /AIQuotaMeter.tsx
-  /SubscriptionGate.tsx            ← HOC pour bloquer features payantes
+    /onboarding/family-members/   ← GET membres pour étape 4
+    /ai/generate-plan/            ← POST Gemini (Phase 2)
+    /stripe/webhook/              ← Stripe webhooks
+/src
+  /features
+    /onboarding/                  ← onboarding.action.ts
+    /meal-plans/                  ← meal-plans.action.ts (toggle favori, replace slot, log)
+    /stock/                       ← stock.action.ts (CRUD PantryItem)
+  /lib
+    /auth/stripe/auth-plans.ts    ← plans Breakfast (free/famille/premium/pro)
 ```
 
 ---
-
-## Intégration Gemini API (exemple)
-
-```typescript
-// lib/gemini.ts
-import { GoogleGenerativeAI } from '@google/generative-ai'
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-
-// Appels simples → Flash
-const flashModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-// Appels avancés (analyse photo) → Pro
-const proModel   = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' })
-
-export async function generateMealPlan(userProfile: UserProfile) {
-  const result = await flashModel.generateContentStream({
-    contents: [{
-      role: 'user',
-      parts: [{ text:
-        `Tu es un expert en nutrition du petit-déjeuner, tu réponds en français.
-         Génère un plan de 7 petits-déjeuners pour ce profil : ${JSON.stringify(userProfile)}.
-         Retourne un JSON valide : [{day, meal_name, prep_time, badge_type, recipe_key}]`
-      }]
-    }]
-  })
-  return result.stream  // streamer vers le client avec ReadableStream
-}
-```
 
 ## Coût IA estimé (1 000 utilisateurs actifs/mois, 5 appels chacun)
 
@@ -217,7 +222,7 @@ Aucune ne fait les 3 choses suivantes ensemble :
 
 1. **Focus 100% petit-déjeuner** — expert, pas généraliste
 2. **Logique "veille" vs "2 min le matin"** — badges Préparer la veille / Express / Week-end
-3. **Conseil nutritionnel embarqué** — index glycémique, protéines, satiété expliqués
+3. **Profil physique + famille** — quantités et apports adaptés à chaque membre
 
 ---
 
@@ -226,9 +231,9 @@ Aucune ne fait les 3 choses suivantes ensemble :
 | Levier | Mécanisme |
 |---|---|
 | SEO | Pages recettes publiques + blog MDX |
-| Free tool viral | "Générateur de liste de courses" gratuit (3 uses → paywall) |
+| Free tool viral | "Générateur de liste de courses" gratuit (1 use/semaine → paywall) |
 | Email | Récap hebdo auto-généré par l'IA (Premium) |
 | Rappels | Notif push/email la veille ("Préparez vos overnight oats") |
-| Gamification | Streaks + badges (7 jours suivis, 30 jours…) |
+| Gamification | Streaks + badges (7, 30, 100 jours suivis) |
 | Parrainage | +1 mois offert par filleul converti |
 | Essai gratuit | 14 jours Pro pour tout nouveau compte |

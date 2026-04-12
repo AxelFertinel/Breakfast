@@ -21,3 +21,146 @@ model Feedback {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// ─── Profil physique de l'utilisateur principal ───────────────────────────────
+model PhysicalProfile {
+  id     String @id @default(nanoid(11))
+  userId String @unique
+
+  // Données physiques
+  weightKg  Float?
+  heightCm  Float?
+  birthYear Int?
+  gender    String? // "male" | "female" | "other"
+
+  // Activité sportive
+  sportHoursPerWeek Float?
+  sportTypes        String[] // ["marche", "vélo", "musculation", "yoga", ...]
+  activityLevel     String? // "sedentary" | "light" | "moderate" | "active" | "very_active"
+
+  // Objectif petit-déjeuner
+  breakfastGoal String? // "perte_poids" | "prise_masse" | "maintien" | "endurance"
+
+  // Suivi onboarding
+  onboardingCompleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("physical_profile")
+}
+
+// ─── Membres de la famille (adultes supplémentaires + enfants) ────────────────
+model FamilyMember {
+  id     String @id @default(nanoid(11))
+  userId String
+
+  name          String
+  type          String   // "adult" | "child"
+  birthYear     Int?
+  weightKg      Float?
+  heightCm      Float?
+  sportTypes    String[]
+  activityLevel String?
+  dietaryPrefs  String[] // allergies + régimes ex: ["gluten", "vegan"]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("family_member")
+}
+
+// ─── Stock d'ingrédients (Mon stock) ─────────────────────────────────────────
+model PantryItem {
+  id     String @id @default(nanoid(11))
+  userId String
+
+  name      String
+  category  String? // "céréales" | "laitier" | "fruit" | "protéine" | "autre"
+  quantity  Float?
+  unit      String? // "g" | "ml" | "unités"
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pantry_item")
+}
+
+// ─── Recettes ────────────────────────────────────────────────────────────────
+model Recipe {
+  id     String  @id @default(nanoid(11))
+  userId String? // null = recette publique
+
+  title         String
+  slug          String  @unique
+  badgeType     String? // "express" | "veille" | "weekend"
+  prepTime      Int? // minutes
+  ingredients   Json // [{name: string, quantity: number, unit: string}]
+  steps         Json // [string]
+  nutritionData Json? // {calories, proteins, carbs, fibers} — rempli Phase 2
+  isPublic      Boolean @default(false)
+
+  favorites FavoriteRecipe[]
+  mealSlots MealSlot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("recipe")
+}
+
+// ─── Plans de petits-déjeuners (semaine) ─────────────────────────────────────
+model MealPlan {
+  id        String @id @default(nanoid(11))
+  userId    String
+  weekStart DateTime // lundi de la semaine concernée
+
+  slots MealSlot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("meal_plan")
+}
+
+model MealSlot {
+  id         String @id @default(nanoid(11))
+  mealPlanId String
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  recipeId   String
+  recipe     Recipe   @relation(fields: [recipeId], references: [id])
+  dayOfWeek  Int // 0=lundi … 6=dimanche
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([mealPlanId, dayOfWeek])
+  @@map("meal_slot")
+}
+
+// ─── Recettes favorites ───────────────────────────────────────────────────────
+model FavoriteRecipe {
+  id       String @id @default(nanoid(11))
+  userId   String
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, recipeId])
+  @@map("favorite_recipe")
+}
+
+// ─── Suivi quotidien (streaks) ────────────────────────────────────────────────
+model BreakfastLog {
+  id       String  @id @default(nanoid(11))
+  userId   String
+  date     DateTime @db.Date // jour du petit-déjeuner suivi
+  recipeId String? // recette consommée (optionnel)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@map("breakfast_log")
+}

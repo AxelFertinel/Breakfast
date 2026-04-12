@@ -2,21 +2,24 @@ import type { Subscription } from "@/generated/prisma";
 import { logger } from "@/lib/logger";
 import {
   Clock,
-  FolderArchive,
-  HardDrive,
   HeadphonesIcon,
   Shield,
+  Star,
   Users,
   Zap,
 } from "lucide-react";
 
 const DEFAULT_LIMIT = {
-  projects: 5,
-  storage: 10,
-  members: 3,
+  childrenLimit: 1, // nombre d'enfants inclus (-1 = illimité)
+  aiGenerationsPerWeek: 1, // générations IA par semaine (null = désactivé)
+  aiGenerationsPerMonth: null as number | null, // générations IA par mois (null = désactivé)
 };
 
-export type PlanLimit = typeof DEFAULT_LIMIT;
+export type PlanLimit = {
+  childrenLimit: number;
+  aiGenerationsPerWeek: number | null;
+  aiGenerationsPerMonth: number | null;
+};
 
 export type OverrideLimits = Partial<PlanLimit>;
 
@@ -33,7 +36,7 @@ export type AppAuthPlan = {
   annualDiscountPriceId?: string | undefined;
   annualDiscountLookupKey?: string | undefined;
   name: string;
-  limits?: Record<string, number> | undefined;
+  limits: PlanLimit;
   group?: string;
   freeTrial?: {
     days: number;
@@ -60,130 +63,184 @@ export type AppAuthPlan = {
   yearlyPrice?: number;
   currency: string;
   isHidden?: boolean;
-  limits: PlanLimit;
 };
 
 export const AUTH_PLANS: AppAuthPlan[] = [
   {
     name: "free",
     description:
-      "Perfect for individuals and small projects with essential features",
-    limits: DEFAULT_LIMIT,
+      "Parfait pour commencer : 1 adulte + 1 enfant, 1 génération IA par semaine",
+    limits: {
+      childrenLimit: 1,
+      aiGenerationsPerWeek: 1,
+      aiGenerationsPerMonth: null,
+    },
     price: 0,
-    currency: "USD",
+    currency: "EUR",
     yearlyPrice: 0,
   },
   {
-    name: "pro",
+    name: "famille",
     isPopular: true,
-    description: "Ideal for growing teams with advanced collaboration needs",
-    priceId: process.env.STRIPE_PRO_PLAN_ID ?? "",
-    annualDiscountPriceId: process.env.STRIPE_PRO_YEARLY_PLAN_ID ?? "",
+    description:
+      "Pour les familles jusqu'à 4 enfants, avec 20 générations IA par mois",
+    priceId: process.env.STRIPE_FAMILLE_PLAN_ID ?? "",
+    annualDiscountPriceId: process.env.STRIPE_FAMILLE_YEARLY_PLAN_ID ?? "",
     limits: {
-      projects: 20,
-      storage: 50,
-      members: 10,
+      childrenLimit: 4,
+      aiGenerationsPerWeek: null,
+      aiGenerationsPerMonth: 20,
     },
     freeTrial: {
       days: 14,
       onTrialStart: async (subscription) => {
-        // Send a welcome email to the user
-        logger.debug(`Welcome email sent to ${subscription}`);
+        logger.debug(`Trial famille démarré pour ${subscription.id}`);
       },
       onTrialExpired: async (subscription) => {
-        // Handle trial expiration
-        logger.debug(`Trial expired for ${subscription}`);
+        logger.debug(`Trial famille expiré pour ${subscription.id}`);
       },
       onTrialEnd: async (subscription) => {
-        // Handle trial end
-        logger.debug(`Trial ended for ${subscription}`);
+        logger.debug(`Trial famille terminé pour ${subscription.id}`);
       },
     },
-
-    price: 49,
-    yearlyPrice: 400,
-    currency: "USD",
+    price: 4.99,
+    yearlyPrice: 47.9,
+    currency: "EUR",
   },
   {
-    name: "ultra",
+    name: "premium",
     isPopular: false,
     description:
-      "Enterprise-grade solution for large teams with complex requirements",
-    priceId: process.env.STRIPE_ULTRA_PLAN_ID ?? "",
-    annualDiscountPriceId: process.env.STRIPE_ULTRA_YEARLY_PLAN_ID ?? "",
+      "Membres illimités, 60 générations IA/mois, analyse nutritionnelle et rappels email",
+    priceId: process.env.STRIPE_PREMIUM_PLAN_ID ?? "",
+    annualDiscountPriceId: process.env.STRIPE_PREMIUM_YEARLY_PLAN_ID ?? "",
     limits: {
-      projects: 100,
-      storage: 1000,
-      members: 100,
+      childrenLimit: -1, // illimité
+      aiGenerationsPerWeek: null,
+      aiGenerationsPerMonth: 60,
     },
     freeTrial: {
       days: 14,
     },
-    price: 100,
-    yearlyPrice: 1000,
-    currency: "USD",
+    price: 8.99,
+    yearlyPrice: 86.9,
+    currency: "EUR",
+  },
+  {
+    name: "pro",
+    isPopular: false,
+    description:
+      "Pour les coachs et nutritionnistes : IA illimitée, dashboard multi-clients, export PDF brandé",
+    priceId: process.env.STRIPE_PRO_PLAN_ID ?? "",
+    annualDiscountPriceId: process.env.STRIPE_PRO_YEARLY_PLAN_ID ?? "",
+    limits: {
+      childrenLimit: -1,
+      aiGenerationsPerWeek: null,
+      aiGenerationsPerMonth: -1, // illimité
+    },
+    freeTrial: {
+      days: 14,
+    },
+    price: 19.99,
+    yearlyPrice: 159.9,
+    currency: "EUR",
   },
 ];
 
-// Limits transformation object
+// Configuration d'affichage des limites
 export const LIMITS_CONFIG: Record<
   keyof PlanLimit,
   {
     icon: React.ElementType;
-    getLabel: (value: number) => string;
+    getLabel: (value: number | null) => string;
     description: string;
   }
 > = {
-  projects: {
-    icon: FolderArchive,
-    getLabel: (value: number) =>
-      `${value} ${value === 1 ? "Project" : "Projects"}`,
-    description: "Create and manage projects",
-  },
-  storage: {
-    icon: HardDrive,
-    getLabel: (value: number) => `${value} GB Storage`,
-    description: "Cloud storage for your files",
-  },
-  members: {
+  childrenLimit: {
     icon: Users,
-    getLabel: (value: number) =>
-      `${value} Team ${value === 1 ? "Member" : "Members"}`,
-    description: "Invite team members to collaborate",
+    getLabel: (value) =>
+      value === -1
+        ? "Enfants illimités"
+        : value === 1
+          ? "1 enfant inclus"
+          : `${value} enfants inclus`,
+    description: "Nombre d'enfants dans le plan familial",
+  },
+  aiGenerationsPerWeek: {
+    icon: Zap,
+    getLabel: (value) =>
+      value === null
+        ? ""
+        : value === 1
+          ? "1 génération IA / semaine"
+          : `${value} générations IA / semaine`,
+    description: "Générations IA hebdomadaires",
+  },
+  aiGenerationsPerMonth: {
+    icon: Star,
+    getLabel: (value) =>
+      value === null
+        ? ""
+        : value === -1
+          ? "IA illimitée"
+          : `${value} générations IA / mois`,
+    description: "Générations IA mensuelles",
   },
 };
 
-// Additional features by plan
+// Fonctionnalités supplémentaires par plan
 export const ADDITIONAL_FEATURES = {
   free: [
     {
       icon: Shield,
-      label: "Basic Security",
-      description: "Standard protection for your data",
+      label: "Plan 2 semaines pré-défini",
+      description: "7 recettes incluses dès le départ",
+    },
+  ],
+  famille: [
+    {
+      icon: Users,
+      label: "Profils par membre",
+      description: "Préférences et allergies par personne",
+    },
+    {
+      icon: Zap,
+      label: "Export liste de courses PDF",
+      description: "Liste optimisée selon votre stock",
+    },
+  ],
+  premium: [
+    {
+      icon: Zap,
+      label: "Analyse nutritionnelle",
+      description: "Score équilibre de chaque semaine",
+    },
+    {
+      icon: HeadphonesIcon,
+      label: "Rappels email",
+      description: "Rappel de préparation la veille",
+    },
+    {
+      icon: Clock,
+      label: "Historique illimité",
+      description: "Toutes vos semaines passées",
     },
   ],
   pro: [
     {
       icon: Zap,
-      label: "Priority Support",
-      description: "Get help when you need it most",
+      label: "Dashboard multi-clients",
+      description: "Gérez vos clients comme un coach",
+    },
+    {
+      icon: Star,
+      label: "Export PDF brandé",
+      description: "Votre logo + couleurs sur les PDF",
     },
     {
       icon: HeadphonesIcon,
-      label: "24/7 Customer Service",
-      description: "Round-the-clock assistance",
-    },
-    {
-      icon: Clock,
-      label: "Advanced Analytics",
-      description: "Detailed insights and reporting",
-    },
-  ],
-  ultra: [
-    {
-      icon: Zap,
-      label: "Priority Support",
-      description: "Get help when you need it most",
+      label: "Support prioritaire",
+      description: "Réponse sous 24h",
     },
   ],
 };
@@ -193,7 +250,6 @@ export const getPlanLimits = (
   overrideLimits?: OverrideLimits | null,
 ): PlanLimit => {
   const planLimits = AUTH_PLANS.find((p) => p.name === plan)?.limits;
-
   const baseLimits = planLimits ?? DEFAULT_LIMIT;
 
   if (!overrideLimits) {
@@ -207,16 +263,28 @@ export const getPlanLimits = (
 };
 
 export const getPlanFeatures = (plan: AppAuthPlan): string[] => {
-  const features: string[] = [
-    ...Object.entries(plan.limits)
-      .filter(([key]) => key in LIMITS_CONFIG)
-      .map(([key, value]) => {
-        const limitConfig = LIMITS_CONFIG[key as keyof typeof LIMITS_CONFIG];
-        return limitConfig.getLabel(value as number);
-      }),
-    ...ADDITIONAL_FEATURES[plan.name as keyof typeof ADDITIONAL_FEATURES].map(
-      (f) => f.label,
-    ),
-  ];
+  const features: string[] = [];
+
+  // Limite enfants
+  features.push(LIMITS_CONFIG.childrenLimit.getLabel(plan.limits.childrenLimit));
+
+  // IA
+  if (plan.limits.aiGenerationsPerWeek !== null) {
+    features.push(
+      LIMITS_CONFIG.aiGenerationsPerWeek.getLabel(plan.limits.aiGenerationsPerWeek),
+    );
+  }
+  if (plan.limits.aiGenerationsPerMonth !== null) {
+    features.push(
+      LIMITS_CONFIG.aiGenerationsPerMonth.getLabel(plan.limits.aiGenerationsPerMonth),
+    );
+  }
+
+  // Fonctionnalités additionnelles
+  const additionalKey = plan.name as keyof typeof ADDITIONAL_FEATURES;
+  if (ADDITIONAL_FEATURES[additionalKey]) {
+    features.push(...ADDITIONAL_FEATURES[additionalKey].map((f) => f.label));
+  }
+
   return features;
 };
