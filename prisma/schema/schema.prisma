@@ -165,6 +165,20 @@ model BreakfastLog {
   @@map("breakfast_log")
 }
 
+// ─── Articles de courses manuels ─────────────────────────────────────────────
+model ShoppingItem {
+  id     String @id @default(nanoid(11))
+  userId String
+
+  name   String
+  note   String? // quantité libre ou remarque, ex: "2 paquets"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("shopping_item")
+}
+
 // ─── Suivi utilisation IA (rate limiting) ──────────────────────────────────────
 model AiUsage {
   id     String @id @default(nanoid(11))
