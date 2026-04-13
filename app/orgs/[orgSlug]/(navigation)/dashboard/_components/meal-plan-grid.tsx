@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
@@ -52,13 +51,22 @@ export function MealPlanGrid({ mealPlan, weekStart, streak }: MealPlanGridProps)
 
   const generateMutation = useMutation({
     mutationFn: async () => {
-      return resolveActionResult(generateMealPlanAction({ orgSlug }));
+      console.log("[generateMealPlan] calling action for org:", orgSlug);
+      const result = await generateMealPlanAction({ orgSlug });
+      console.log("[generateMealPlan] result:", result);
+      if (!result) throw new Error("Aucune réponse du serveur");
+      if (result.serverError) throw new Error(result.serverError);
+      if (result.validationErrors) throw new Error("Données invalides");
+      return result.data;
     },
     onSuccess: () => {
       toast.success("Plan généré avec succès !");
       router.refresh();
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: Error) => {
+      console.error("[generateMealPlan] error:", error);
+      toast.error(error.message ?? "Erreur lors de la génération");
+    },
   });
 
   const today = new Date();
@@ -94,6 +102,7 @@ export function MealPlanGrid({ mealPlan, weekStart, streak }: MealPlanGridProps)
           </p>
         </div>
         <Button
+          type="button"
           onClick={() => generateMutation.mutate()}
           disabled={generateMutation.isPending}
         >
@@ -122,6 +131,7 @@ export function MealPlanGrid({ mealPlan, weekStart, streak }: MealPlanGridProps)
           <div />
         )}
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={() => generateMutation.mutate()}
