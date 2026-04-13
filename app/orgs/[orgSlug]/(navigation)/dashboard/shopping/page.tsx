@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Layout,
   LayoutContent,
@@ -7,7 +6,6 @@ import {
 } from "@/features/page/layout";
 import { getRequiredUser } from "@/lib/auth/auth-user";
 import { prisma } from "@/lib/prisma";
-import { ShoppingCart } from "lucide-react";
 import { Suspense } from "react";
 import { ShoppingListClient } from "./_components/shopping-list-client";
 
@@ -41,10 +39,14 @@ async function ShoppingContent() {
     },
   });
 
-  // Stock disponible
-  const pantryItems = await prisma.pantryItem.findMany({
-    where: { userId: user.id },
-  });
+  // Stock disponible + articles manuels
+  const [pantryItems, customItems] = await Promise.all([
+    prisma.pantryItem.findMany({ where: { userId: user.id } }),
+    prisma.shoppingItem.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
   if (!mealPlan) {
     return (
@@ -53,12 +55,10 @@ async function ShoppingContent() {
           <LayoutTitle>Liste de courses</LayoutTitle>
         </LayoutHeader>
         <LayoutContent>
-          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-            <ShoppingCart size={48} className="text-muted-foreground" />
-            <p className="text-muted-foreground">
-              Aucun plan pour cette semaine. Générez votre semaine d'abord.
-            </p>
-          </div>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Aucun plan pour cette semaine — vous pouvez quand même ajouter des articles manuellement.
+          </p>
+          <ShoppingListClient items={[]} initialCustomItems={customItems} />
         </LayoutContent>
       </Layout>
     );
@@ -113,7 +113,7 @@ async function ShoppingContent() {
         <LayoutTitle>Liste de courses</LayoutTitle>
       </LayoutHeader>
       <LayoutContent>
-        <ShoppingListClient items={shoppingList} />
+        <ShoppingListClient items={shoppingList} initialCustomItems={customItems} />
       </LayoutContent>
     </Layout>
   );
