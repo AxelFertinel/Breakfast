@@ -7,7 +7,7 @@ import { resolveActionResult } from "@/lib/actions/actions-utils";
 import { useMutation } from "@tanstack/react-query";
 import { Pencil, PlusCircle, Trash2, User, User2 } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { FamilyMemberForm } from "./family-member-form";
 import { deleteFamilyMemberAction } from "../famille.action";
@@ -64,12 +64,9 @@ const DIETARY_LABELS: Record<string, string> = {
   kosher: "Kosher",
 };
 
-function reload() {
-  window.location.reload();
-}
-
 export function FamilyList({ physicalProfile, familyMembers, adultLimit, childrenLimit }: FamilyListProps) {
   const params = useParams();
+  const router = useRouter();
   const orgSlug = params.orgSlug as string;
 
   const adults = familyMembers.filter((m) => m.type === "adult");
@@ -81,7 +78,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
     },
     onSuccess: () => {
       toast.success("Membre supprimé");
-      reload();
+      router.refresh();
     },
     onError: (error) => toast.error(error.message),
   });
@@ -102,7 +99,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
             activityLevel: physicalProfile?.activityLevel ?? undefined,
             dietaryPrefs: physicalProfile?.dietaryPrefs ?? [],
           }}
-          onSuccess={() => { dialogManager.closeAll(); reload(); }}
+          onSuccess={() => { dialogManager.closeAll(); router.refresh(); }}
         />
       ),
     });
@@ -143,7 +140,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
       children: (
         <FamilyMemberForm
           type="adult-member"
-          onSuccess={() => { dialogManager.closeAll(); reload(); }}
+          onSuccess={() => { dialogManager.closeAll(); router.refresh(); }}
         />
       ),
     });
@@ -174,7 +171,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
       children: (
         <FamilyMemberForm
           type="child"
-          onSuccess={() => { dialogManager.closeAll(); reload(); }}
+          onSuccess={() => { dialogManager.closeAll(); router.refresh(); }}
         />
       ),
     });
@@ -197,7 +194,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
             activityLevel: member.activityLevel ?? undefined,
             dietaryPrefs: member.dietaryPrefs,
           }}
-          onSuccess={() => { dialogManager.closeAll(); reload(); }}
+          onSuccess={() => { dialogManager.closeAll(); router.refresh(); }}
         />
       ),
     });
