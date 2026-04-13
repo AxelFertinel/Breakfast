@@ -48,7 +48,7 @@ async function ShoppingContent() {
 
   if (!mealPlan) {
     return (
-      <Layout size="md">
+      <Layout size="lg">
         <LayoutHeader>
           <LayoutTitle>Liste de courses</LayoutTitle>
         </LayoutHeader>
@@ -108,7 +108,7 @@ async function ShoppingContent() {
   }
 
   return (
-    <Layout size="md">
+    <Layout size="lg">
       <LayoutHeader>
         <LayoutTitle>Liste de courses</LayoutTitle>
       </LayoutHeader>

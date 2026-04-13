@@ -75,7 +75,7 @@ async function StreaksContent() {
   const nextBadge = BADGES.find((b) => maxStreak < b.days);
 
   return (
-    <Layout size="md">
+    <Layout size="lg">
       <LayoutHeader>
         <LayoutTitle>Mes streaks</LayoutTitle>
       </LayoutHeader>
@@ -83,9 +83,12 @@ async function StreaksContent() {
         {/* Streak courant */}
         <div className="flex flex-col items-center gap-2 rounded-xl bg-orange-50 py-8">
           <Flame size={48} className="text-orange-500" />
-          <span className="text-5xl font-bold text-orange-600">{currentStreak}</span>
+          <span className="text-5xl font-bold text-orange-600">
+            {currentStreak}
+          </span>
           <span className="text-muted-foreground text-sm">
-            jour{currentStreak !== 1 ? "s" : ""} consécutif{currentStreak !== 1 ? "s" : ""}
+            jour{currentStreak !== 1 ? "s" : ""} consécutif
+            {currentStreak !== 1 ? "s" : ""}
           </span>
           <span className="text-muted-foreground text-xs">
             Meilleur streak : {maxStreak} jour{maxStreak !== 1 ? "s" : ""}
@@ -102,7 +105,9 @@ async function StreaksContent() {
                 <div
                   key={badge.days}
                   className={`flex items-center gap-3 rounded-lg border p-3 ${
-                    unlocked ? "border-yellow-200 bg-yellow-50" : "border-input opacity-50"
+                    unlocked
+                      ? "border-yellow-200 bg-yellow-50"
+                      : "border-input opacity-50"
                   }`}
                 >
                   <span className="text-2xl">{badge.icon}</span>
@@ -115,9 +120,7 @@ async function StreaksContent() {
                       </p>
                     )}
                   </div>
-                  {unlocked && (
-                    <Trophy size={16} className="text-yellow-500" />
-                  )}
+                  {unlocked && <Trophy size={16} className="text-yellow-500" />}
                 </div>
               );
             })}
@@ -127,7 +130,8 @@ async function StreaksContent() {
         {/* Total */}
         <p className="text-muted-foreground text-center text-sm">
           {logs.length} petit{logs.length !== 1 ? "s" : ""}-déjeuner
-          {logs.length !== 1 ? "s" : ""} enregistré{logs.length !== 1 ? "s" : ""} au total
+          {logs.length !== 1 ? "s" : ""} enregistré
+          {logs.length !== 1 ? "s" : ""} au total
         </p>
       </LayoutContent>
     </Layout>

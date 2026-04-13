@@ -65,10 +65,28 @@ type ChildValues = {
 };
 
 type Props =
-  | { type: "adult"; defaultValues?: AdultValues; onSuccess: () => void; memberId?: never }
-  | { type: "child" | "adult-member"; defaultValues?: ChildValues; onSuccess: () => void; memberId?: string };
+  | {
+      type: "adult";
+      defaultValues?: AdultValues;
+      onSuccess: () => void;
+      onCancel?: () => void;
+      memberId?: never;
+    }
+  | {
+      type: "child" | "adult-member";
+      defaultValues?: ChildValues;
+      onSuccess: () => void;
+      onCancel?: () => void;
+      memberId?: string;
+    };
 
-export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: Props) {
+export function FamilyMemberForm({
+  type,
+  defaultValues,
+  onSuccess,
+  onCancel,
+  memberId,
+}: Props) {
   const isMainAdult = type === "adult";
 
   const [sportTypes, setSportTypes] = useState<string[]>(
@@ -116,45 +134,86 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
       if (isMainAdult) {
-        const weightKg = data.get("weightKg") ? parseFloat(data.get("weightKg") as string) : undefined;
-        const heightCm = data.get("heightCm") ? parseFloat(data.get("heightCm") as string) : undefined;
-        const birthYear = data.get("birthYear") ? parseInt(data.get("birthYear") as string) : undefined;
-        return resolveActionResult(
-          savePhysicalProfileAction({
-            weightKg,
-            heightCm,
-            birthYear,
-            sportHoursPerWeek: data.get("sportHoursPerWeek") ? parseFloat(data.get("sportHoursPerWeek") as string) : undefined,
-            sportTypes,
-            activityLevel: activityLevel as "sedentary" | "light" | "moderate" | "active" | "very_active" | undefined || undefined,
-            dietaryPrefs,
-          }),
+        const weightKg = data.get("weightKg")
+          ? parseFloat(data.get("weightKg") as string)
+          : undefined;
+        const heightCm = data.get("heightCm")
+          ? parseFloat(data.get("heightCm") as string)
+          : undefined;
+        const birthYear = data.get("birthYear")
+          ? parseInt(data.get("birthYear") as string)
+          : undefined;
+        const payload = {
+          weightKg,
+          heightCm,
+          birthYear,
+          sportHoursPerWeek: data.get("sportHoursPerWeek")
+            ? parseFloat(data.get("sportHoursPerWeek") as string)
+            : undefined,
+          sportTypes,
+          activityLevel:
+            (activityLevel as
+              | "sedentary"
+              | "light"
+              | "moderate"
+              | "active"
+              | "very_active"
+              | undefined) || undefined,
+          dietaryPrefs,
+        };
+        console.log("[FamilyMemberForm] savePhysicalProfile payload:", payload);
+        const result = await resolveActionResult(
+          savePhysicalProfileAction(payload),
         );
+        console.log("[FamilyMemberForm] savePhysicalProfile result:", result);
+        return result;
       } else {
         const name = data.get("name") as string;
-        const birthYear = data.get("birthYear") ? parseInt(data.get("birthYear") as string) : undefined;
-        const weightKg = data.get("weightKg") ? parseFloat(data.get("weightKg") as string) : undefined;
-        const heightCm = data.get("heightCm") ? parseFloat(data.get("heightCm") as string) : undefined;
-        return resolveActionResult(
-          saveFamilyMemberAction({
-            id: memberId,
-            name,
-            type: type === "adult-member" ? "adult" : "child",
-            birthYear,
-            weightKg,
-            heightCm,
-            sportTypes,
-            activityLevel: activityLevel as "sedentary" | "light" | "moderate" | "active" | "very_active" | undefined || undefined,
-            dietaryPrefs,
-          }),
+        const birthYear = data.get("birthYear")
+          ? parseInt(data.get("birthYear") as string)
+          : undefined;
+        const weightKg = data.get("weightKg")
+          ? parseFloat(data.get("weightKg") as string)
+          : undefined;
+        const heightCm = data.get("heightCm")
+          ? parseFloat(data.get("heightCm") as string)
+          : undefined;
+        const payload = {
+          id: memberId,
+          name,
+          type: (type === "adult-member" ? "adult" : "child") as
+            | "adult"
+            | "child",
+          birthYear,
+          weightKg,
+          heightCm,
+          sportTypes,
+          activityLevel:
+            (activityLevel as
+              | "sedentary"
+              | "light"
+              | "moderate"
+              | "active"
+              | "very_active"
+              | undefined) || undefined,
+          dietaryPrefs,
+        };
+        console.log("[FamilyMemberForm] saveFamilyMember payload:", payload);
+        const result = await resolveActionResult(
+          saveFamilyMemberAction(payload),
         );
+        console.log("[FamilyMemberForm] saveFamilyMember result:", result);
+        return result;
       }
     },
     onSuccess: () => {
       toast.success("Profil mis à jour");
       onSuccess();
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error) => {
+      console.error("[FamilyMemberForm] mutation error:", error);
+      toast.error(error.message);
+    },
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -182,7 +241,7 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
 
       {/* Données physiques */}
       <div>
-        <p className="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide">
+        <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
           Données physiques
         </p>
         <div className="grid grid-cols-3 gap-3">
@@ -222,7 +281,7 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
 
       {/* Activité */}
       <div>
-        <p className="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide">
+        <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
           Activité physique
         </p>
         <div className="flex flex-col gap-3">
@@ -230,17 +289,17 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
             <div className="flex flex-col gap-1.5">
               <Label>Niveau d'activité</Label>
               <Select value={activityLevel} onValueChange={setActivityLevel}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choisir un niveau" />
-              </SelectTrigger>
-              <SelectContent>
-                {ACTIVITY_LEVELS.map((l) => (
-                  <SelectItem key={l.value} value={l.value}>
-                    {l.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choisir un niveau" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ACTIVITY_LEVELS.map((l) => (
+                    <SelectItem key={l.value} value={l.value}>
+                      {l.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             {isMainAdult && (
               <div className="flex flex-col gap-1.5">
@@ -253,7 +312,10 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
                   max={40}
                   step={0.5}
                   placeholder="3"
-                  defaultValue={(defaultValues as AdultValues | undefined)?.sportHoursPerWeek ?? ""}
+                  defaultValue={
+                    (defaultValues as AdultValues | undefined)
+                      ?.sportHoursPerWeek ?? ""
+                  }
                 />
               </div>
             )}
@@ -272,7 +334,9 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
                     {sport}
                     <button
                       type="button"
-                      onClick={() => setSportTypes(sportTypes.filter((s) => s !== sport))}
+                      onClick={() =>
+                        setSportTypes(sportTypes.filter((s) => s !== sport))
+                      }
                       className="hover:text-destructive ml-0.5 transition-colors"
                     >
                       ×
@@ -288,7 +352,10 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
                 value={customSport}
                 onChange={(e) => setCustomSport(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") { e.preventDefault(); addCustomSport(); }
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomSport();
+                  }
                 }}
                 className="text-sm"
               />
@@ -301,11 +368,19 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
                 value={customSportHours}
                 onChange={(e) => setCustomSportHours(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") { e.preventDefault(); addCustomSport(); }
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomSport();
+                  }
                 }}
                 className="w-24 shrink-0 text-sm"
               />
-              <Button type="button" variant="outline" size="sm" onClick={addCustomSport}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addCustomSport}
+              >
                 Ajouter
               </Button>
             </div>
@@ -315,7 +390,7 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
 
       {/* Allergènes & préférences */}
       <div className="flex flex-col gap-3">
-        <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+        <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
           Allergènes & préférences alimentaires
         </p>
         {/* Tags prédéfinis */}
@@ -340,7 +415,8 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
           })}
         </div>
         {/* Tags personnalisés (allergènes non listés) */}
-        {dietaryPrefs.filter((d) => !DIETARY_OPTIONS.some((o) => o.value === d)).length > 0 && (
+        {dietaryPrefs.filter((d) => !DIETARY_OPTIONS.some((o) => o.value === d))
+          .length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {dietaryPrefs
               .filter((d) => !DIETARY_OPTIONS.some((o) => o.value === d))
@@ -352,7 +428,9 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
                   {custom}
                   <button
                     type="button"
-                    onClick={() => setDietaryPrefs(dietaryPrefs.filter((d) => d !== custom))}
+                    onClick={() =>
+                      setDietaryPrefs(dietaryPrefs.filter((d) => d !== custom))
+                    }
                     className="hover:text-destructive ml-0.5 transition-colors"
                   >
                     ×
@@ -368,11 +446,19 @@ export function FamilyMemberForm({ type, defaultValues, onSuccess, memberId }: P
             value={customAllergen}
             onChange={(e) => setCustomAllergen(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") { e.preventDefault(); addCustomAllergen(); }
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addCustomAllergen();
+              }
             }}
             className="text-sm"
           />
-          <Button type="button" variant="outline" size="sm" onClick={addCustomAllergen}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addCustomAllergen}
+          >
             Ajouter
           </Button>
         </div>
