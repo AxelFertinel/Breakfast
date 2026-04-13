@@ -2,6 +2,7 @@
 
 ## 2026-04-13
 
+REFACTOR: Supprime le tunnel d'onboarding — les membres de la famille sont désormais créés directement dans l'onglet "Famille"
 UPDATE: Dashboard — augmente taille de layout (md → lg) pour meilleur espacement
 CHORE: Formatting — applique corrections Prettier aux composants famille
 

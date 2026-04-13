@@ -101,11 +101,17 @@ export function FamilyMemberForm({
   const [customAllergen, setCustomAllergen] = useState("");
   const [customSport, setCustomSport] = useState("");
   const [customSportHours, setCustomSportHours] = useState("");
+  const [sportHoursError, setSportHoursError] = useState(false);
 
   const addCustomSport = () => {
     const val = customSport.trim().toLowerCase();
     if (!val) return;
-    const label = customSportHours ? `${val} (${customSportHours}h/sem)` : val;
+    if (!customSportHours) {
+      setSportHoursError(true);
+      return;
+    }
+    setSportHoursError(false);
+    const label = `${val} (${customSportHours}h/sem)`;
     if (!sportTypes.some((s) => s.startsWith(val))) {
       setSportTypes([...sportTypes, label]);
     }
@@ -246,17 +252,18 @@ export function FamilyMemberForm({
         </p>
         <div className="grid grid-cols-3 gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="birthYear">Naissance</Label>
+            <Label htmlFor="birthYear">Naissance *</Label>
             <Input
               id="birthYear"
               name="birthYear"
               type="number"
               placeholder="2000"
               defaultValue={dv?.birthYear ?? ""}
+              required
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="weightKg">Poids (kg)</Label>
+            <Label htmlFor="weightKg">Poids (kg) *</Label>
             <Input
               id="weightKg"
               name="weightKg"
@@ -264,16 +271,18 @@ export function FamilyMemberForm({
               step="0.1"
               placeholder="60"
               defaultValue={dv?.weightKg ?? ""}
+              required
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="heightCm">Taille (cm)</Label>
+            <Label htmlFor="heightCm">Taille (cm) *</Label>
             <Input
               id="heightCm"
               name="heightCm"
               type="number"
               placeholder="170"
               defaultValue={dv?.heightCm ?? ""}
+              required
             />
           </div>
         </div>
@@ -359,22 +368,30 @@ export function FamilyMemberForm({
                 }}
                 className="text-sm"
               />
-              <Input
-                placeholder="h/sem"
-                type="number"
-                min={0}
-                max={40}
-                step={0.5}
-                value={customSportHours}
-                onChange={(e) => setCustomSportHours(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addCustomSport();
-                  }
-                }}
-                className="w-24 shrink-0 text-sm"
-              />
+              <div className="flex flex-col gap-1">
+                <Input
+                  placeholder="h/sem *"
+                  type="number"
+                  min={0}
+                  max={40}
+                  step={0.5}
+                  value={customSportHours}
+                  onChange={(e) => {
+                    setCustomSportHours(e.target.value);
+                    if (e.target.value) setSportHoursError(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addCustomSport();
+                    }
+                  }}
+                  className={`w-24 shrink-0 text-sm${sportHoursError ? "border-destructive" : ""}`}
+                />
+                {sportHoursError && (
+                  <p className="text-destructive w-24 text-xs">Requis</p>
+                )}
+              </div>
               <Button
                 type="button"
                 variant="outline"

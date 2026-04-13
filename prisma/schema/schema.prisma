@@ -44,9 +44,6 @@ model PhysicalProfile {
   // Objectif petit-déjeuner
   breakfastGoal String? // "perte_poids" | "prise_masse" | "maintien" | "endurance"
 
-  // Suivi onboarding
-  onboardingCompleted Boolean @default(false)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
