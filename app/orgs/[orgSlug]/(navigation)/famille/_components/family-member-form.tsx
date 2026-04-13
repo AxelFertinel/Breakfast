@@ -213,7 +213,6 @@ export function FamilyMemberForm({
       onSuccess();
     },
     onError: (error) => {
-      console.error("[FamilyMemberForm] mutation error:", error);
       toast.error(error.message);
     },
   });
@@ -382,7 +381,7 @@ export function FamilyMemberForm({
                       addCustomSport();
                     }
                   }}
-                  className={`w-24 shrink-0 text-sm${sportHoursError ? "border-destructive" : ""}`}
+                  className={`w-24 shrink-0 text-sm${sportHoursError ? " border-destructive" : ""}`}
                 />
                 {sportHoursError && (
                   <p className="text-destructive w-24 text-xs">Requis</p>
@@ -477,7 +476,12 @@ export function FamilyMemberForm({
         </div>
       </div>
 
-      <div className="flex justify-end pt-1">
+      <div className="flex justify-end gap-2 pt-1">
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Annuler
+          </Button>
+        )}
         <Button type="submit" disabled={mutation.isPending}>
           {mutation.isPending ? "Enregistrement…" : "Enregistrer"}
         </Button>

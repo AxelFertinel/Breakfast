@@ -100,6 +100,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
             dietaryPrefs: physicalProfile?.dietaryPrefs ?? [],
           }}
           onSuccess={() => { dialogManager.closeAll(); router.refresh(); }}
+          onCancel={() => dialogManager.closeAll()}
         />
       ),
     });
@@ -141,6 +142,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
         <FamilyMemberForm
           type="adult-member"
           onSuccess={() => { dialogManager.closeAll(); router.refresh(); }}
+          onCancel={() => dialogManager.closeAll()}
         />
       ),
     });
@@ -172,6 +174,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
         <FamilyMemberForm
           type="child"
           onSuccess={() => { dialogManager.closeAll(); router.refresh(); }}
+          onCancel={() => dialogManager.closeAll()}
         />
       ),
     });
@@ -195,6 +198,7 @@ export function FamilyList({ physicalProfile, familyMembers, adultLimit, childre
             dietaryPrefs: member.dietaryPrefs,
           }}
           onSuccess={() => { dialogManager.closeAll(); router.refresh(); }}
+          onCancel={() => dialogManager.closeAll()}
         />
       ),
     });
