@@ -167,11 +167,9 @@ export function FamilyMemberForm({
               | undefined) || undefined,
           dietaryPrefs,
         };
-        console.log("[FamilyMemberForm] savePhysicalProfile payload:", payload);
         const result = await resolveActionResult(
           savePhysicalProfileAction(payload),
         );
-        console.log("[FamilyMemberForm] savePhysicalProfile result:", result);
         return result;
       } else {
         const name = data.get("name") as string;
@@ -204,11 +202,9 @@ export function FamilyMemberForm({
               | undefined) || undefined,
           dietaryPrefs,
         };
-        console.log("[FamilyMemberForm] saveFamilyMember payload:", payload);
         const result = await resolveActionResult(
           saveFamilyMemberAction(payload),
         );
-        console.log("[FamilyMemberForm] saveFamilyMember result:", result);
         return result;
       }
     },
