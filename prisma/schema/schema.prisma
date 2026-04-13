@@ -167,3 +167,17 @@ model BreakfastLog {
   @@unique([userId, date])
   @@map("breakfast_log")
 }
+
+// ─── Suivi utilisation IA (rate limiting) ──────────────────────────────────────
+model AiUsage {
+  id     String @id @default(nanoid(11))
+  userId String
+
+  feature String // "generate-plan" | "inspire-me" | "generate-recipe" | "optimize-shopping" | "what-to-cook" | "nutrition-score"
+  tokenCount Int  @default(1) // nombre de "générations" consommées
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("ai_usage")
+}

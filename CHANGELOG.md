@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-04-13
+
+UPDATE: Dashboard — augmente taille de layout (md → lg) pour meilleur espacement
+CHORE: Formatting — applique corrections Prettier aux composants famille
+
 ## 2026-04-12
 FIX: ContactSupportDialog — suppression du useMutation non importé, logique de soumission inline avec useForm
 FIX: DialogComponent — ajout AlertDialogTitle masqué (sr-only) dans le cas custom pour l'accessibilité
