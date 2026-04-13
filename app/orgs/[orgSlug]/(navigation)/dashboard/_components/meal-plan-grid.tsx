@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { resolveActionResult } from "@/lib/actions/actions-utils";
 import { logBreakfastAction } from "@/features/meal-plans/meal-plans.action";
+import { generateMealPlanAction } from "@/features/ai/generate-meal-plan.action";
 import { useMutation } from "@tanstack/react-query";
-import { CheckCircle, ChefHat, Flame, Sparkles } from "lucide-react";
+import { CheckCircle, ChefHat, Flame, RefreshCw, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -45,8 +46,20 @@ type MealPlanGridProps = {
 
 export function MealPlanGrid({ mealPlan, weekStart, streak }: MealPlanGridProps) {
   const params = useParams();
+  const router = useRouter();
   const orgSlug = params.orgSlug as string;
   const [loggedDays, setLoggedDays] = useState<Set<number>>(new Set());
+
+  const generateMutation = useMutation({
+    mutationFn: async () => {
+      return resolveActionResult(generateMealPlanAction({ orgSlug }));
+    },
+    onSuccess: () => {
+      toast.success("Plan généré avec succès !");
+      router.refresh();
+    },
+    onError: (error) => toast.error(error.message),
+  });
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -80,9 +93,12 @@ export function MealPlanGrid({ mealPlan, weekStart, streak }: MealPlanGridProps)
             Générez votre plan de petits-déjeuners avec l'IA.
           </p>
         </div>
-        <Button>
+        <Button
+          onClick={() => generateMutation.mutate()}
+          disabled={generateMutation.isPending}
+        >
           <Sparkles size={16} className="mr-2" />
-          Générer ma semaine
+          {generateMutation.isPending ? "Génération en cours…" : "Générer ma semaine"}
         </Button>
       </div>
     );
@@ -94,14 +110,27 @@ export function MealPlanGrid({ mealPlan, weekStart, streak }: MealPlanGridProps)
 
   return (
     <div className="flex flex-col gap-4">
-      {streak > 0 && (
-        <div className="flex items-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3">
-          <Flame size={20} className="text-orange-500" />
-          <span className="text-sm font-medium text-orange-700">
-            {streak} jour{streak > 1 ? "s" : ""} de suite — continuez comme ça !
-          </span>
-        </div>
-      )}
+      <div className="flex items-center justify-between gap-2">
+        {streak > 0 ? (
+          <div className="flex items-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3">
+            <Flame size={20} className="text-orange-500" />
+            <span className="text-sm font-medium text-orange-700">
+              {streak} jour{streak > 1 ? "s" : ""} de suite — continuez comme ça !
+            </span>
+          </div>
+        ) : (
+          <div />
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => generateMutation.mutate()}
+          disabled={generateMutation.isPending}
+        >
+          <RefreshCw size={14} className={`mr-2 ${generateMutation.isPending ? "animate-spin" : ""}`} />
+          {generateMutation.isPending ? "Génération…" : "Régénérer avec l'IA"}
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {DAY_LABELS.map((dayLabel, dayIndex) => {
