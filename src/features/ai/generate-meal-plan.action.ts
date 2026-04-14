@@ -14,28 +14,37 @@ import { z } from "zod";
 
 const GeneratedRecipeSchema = z.object({
   title: z.string(),
-  badgeType: z.enum(["express", "veille", "weekend"]).nullable(),
-  prepTime: z.number().int().positive(),
+  badgeType: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((v) => {
+      if (v === "express" || v === "veille" || v === "weekend") return v;
+      return null;
+    }),
+  prepTime: z.coerce.number().int().positive().catch(10),
   ingredients: z.array(
     z.object({
       name: z.string(),
-      quantity: z.number(),
-      unit: z.string(),
+      quantity: z.coerce.number().catch(1),
+      unit: z.string().catch("unité"),
     }),
-  ),
-  steps: z.array(z.string()),
+  ).catch([]),
+  steps: z.array(z.string()).catch([]),
   nutritionData: z
     .object({
-      calories: z.number(),
-      proteins: z.number(),
-      carbs: z.number(),
-      fibers: z.number(),
+      calories: z.coerce.number(),
+      proteins: z.coerce.number(),
+      carbs: z.coerce.number(),
+      fibers: z.coerce.number(),
     })
-    .nullable(),
+    .nullable()
+    .optional()
+    .catch(null),
 });
 
 const GeneratedPlanSchema = z.object({
-  recipes: z.array(GeneratedRecipeSchema).length(7),
+  recipes: z.array(GeneratedRecipeSchema).min(1),
 });
 
 function buildPrompt(ctx: {
@@ -169,17 +178,29 @@ export const generateMealPlanAction = authAction
     try {
       const result = await geminiFlash.generateContent(prompt);
       const text = result.response.text();
-      const raw = JSON.parse(text);
+      console.log("[AI] raw response:", text.slice(0, 500));
+      // Nettoyer les éventuels blocs markdown
+      const cleaned = text.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+      const raw = JSON.parse(cleaned);
       parsedPlan = GeneratedPlanSchema.parse(raw);
-    } catch {
+    } catch (e) {
+      console.error("[AI] parse error:", e);
       throw new ActionError(
         "L'IA n'a pas pu générer un plan valide. Réessaie dans quelques instants.",
       );
     }
 
+    // Compléter à 7 jours si Gemini en a retourné moins
+    while (parsedPlan.recipes.length < 7) {
+      const base = parsedPlan.recipes[parsedPlan.recipes.length % parsedPlan.recipes.length];
+      parsedPlan.recipes.push({ ...base, title: `${base.title} (bis)` });
+    }
+    // Tronquer si plus de 7
+    const recipes7 = parsedPlan.recipes.slice(0, 7);
+
     // 4. Sauvegarder les recettes en base
     const createdRecipes = await Promise.all(
-      parsedPlan.recipes.map((r) =>
+      recipes7.map((r) =>
         prisma.recipe.create({
           data: {
             userId: user.id,
