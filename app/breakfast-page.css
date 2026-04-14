@@ -1,0 +1,74 @@
+:root {
+  --cream: #FAFAF7;
+  --dark: #1A1A18;
+  --green: #2D5016;
+  --green-light: #EEF5E6;
+  --amber: #C47A1E;
+  --amber-light: #FDF3E3;
+  --border: #E5E5DF;
+  --radius: 10px;
+}
+
+.bf-app {
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  background: var(--cream);
+  color: var(--dark);
+  padding: 1rem;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.bf-app .tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; background: #EFEFE9; padding: 4px; border-radius: var(--radius); }
+.bf-app .tab { flex: 1; padding: 8px 12px; border: none; background: transparent; font-family: var(--font-dm-sans, 'DM Sans', sans-serif); font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 7px; color: #666; transition: all .2s; }
+.bf-app .tab.active { background: #fff; color: var(--dark); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+.bf-app .panel { display: none; }
+.bf-app .panel.active { display: block; }
+
+.bf-app .week-label { font-family: var(--font-dm-serif, 'DM Serif Display', serif); font-size: 18px; color: var(--dark); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1.5px solid var(--dark); }
+.bf-app .days { display: flex; flex-direction: column; gap: 8px; margin-bottom: 2rem; }
+.bf-app .day-row { display: grid; grid-template-columns: 80px 1fr; gap: 12px; align-items: start; }
+.bf-app .day-name { font-size: 12px; font-weight: 500; color: #888; padding-top: 14px; text-transform: uppercase; letter-spacing: .05em; }
+.bf-app .day-card { background: #fff; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bf-app .meal-name { font-size: 14px; font-weight: 500; color: var(--dark); }
+.bf-app .meal-sub { font-size: 12px; color: #888; margin-top: 2px; }
+.bf-app .badge-v { font-size: 11px; padding: 2px 8px; border-radius: 20px; white-space: nowrap; font-weight: 500; }
+.bf-app .badge-prep { background: #EEEDFE; color: #534AB7; }
+.bf-app .badge-quick { background: var(--green-light); color: var(--green); }
+.bf-app .badge-we { background: var(--amber-light); color: var(--amber); }
+
+.bf-app .recipes-grid { display: flex; flex-direction: column; gap: 12px; }
+.bf-app .recipe-card { background: #fff; border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.bf-app .recipe-header { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+.bf-app .recipe-title { font-family: var(--font-dm-serif, 'DM Serif Display', serif); font-size: 16px; color: var(--dark); }
+.bf-app .recipe-meta { font-size: 12px; color: #888; margin-top: 2px; }
+.bf-app .recipe-arrow { font-size: 14px; color: #aaa; transition: transform .2s; display: inline-block; }
+.bf-app .recipe-arrow.open { transform: rotate(180deg); }
+.bf-app .recipe-body { display: none; padding: 0 16px 16px; border-top: 0.5px solid var(--border); }
+.bf-app .recipe-body.open { display: block; }
+.bf-app .ingr-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: #aaa; margin: 14px 0 8px; }
+.bf-app .ingr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.bf-app .ingr-table td { padding: 5px 0; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+.bf-app .ingr-table td:last-child { text-align: right; color: var(--green); font-weight: 500; }
+.bf-app .ingr-table tr:last-child td { border-bottom: none; }
+.bf-app .step-list { margin-top: 4px; display: flex; flex-direction: column; gap: 8px; }
+.bf-app .step { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: #444; line-height: 1.5; }
+.bf-app .step-num { min-width: 20px; height: 20px; border-radius: 50%; background: var(--green-light); color: var(--green); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; margin-top: 1px; flex-shrink: 0; }
+.bf-app .tip-box { background: var(--amber-light); border-radius: 7px; padding: 10px 12px; font-size: 12px; color: var(--amber); margin-top: 12px; line-height: 1.5; }
+
+.bf-app .section-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: #aaa; margin: 1.2rem 0 8px; }
+.bf-app .check-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+.bf-app .check-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all .15s; }
+.bf-app .check-item:hover { border-color: #bbb; }
+.bf-app .check-item.checked { background: #F5F5F0; opacity: .65; }
+.bf-app .check-item.checked .check-label { text-decoration: line-through; color: #aaa; }
+.bf-app .check-box { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid #ccc; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+.bf-app .check-item.checked .check-box { background: var(--green); border-color: var(--green); }
+.bf-app .check-tick { display: none; font-size: 11px; color: #fff; }
+.bf-app .check-item.checked .check-tick { display: block; }
+.bf-app .check-label { font-size: 14px; font-weight: 500; flex: 1; }
+.bf-app .check-qty { font-size: 12px; color: var(--green); font-weight: 500; background: var(--green-light); padding: 2px 8px; border-radius: 20px; }
+.bf-app .check-all { font-size: 12px; color: #888; text-align: right; margin-bottom: 8px; cursor: pointer; text-decoration: underline; }
+.bf-app .progress-bar { height: 4px; background: #E5E5DF; border-radius: 4px; margin-bottom: 1.5rem; overflow: hidden; }
+.bf-app .progress-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width .3s; }
+.bf-app .progress-text { font-size: 12px; color: #888; margin-bottom: 8px; text-align: right; }
